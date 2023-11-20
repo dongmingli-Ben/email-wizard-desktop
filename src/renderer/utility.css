@@ -1,0 +1,179 @@
+/**
+* Welcome to your ✨𝔲𝔱𝔦𝔩𝔦𝔱𝔶 𝔰𝔱𝔶𝔩𝔢𝔰✨!
+* This file includes utility classes that are super simple
+* and can be used to add general styles; variable definitions
+* for colors; and styles to html, body, and other high level
+* DOMs.
+* 
+* All utility classes start with a `u-` and all do
+* one basic CSS thing (for example, making the font-weight
+* 600 for bolding) or are super generic.
+* 
+* This is 𝙉𝙊𝙏 the place to define classes for components or
+* do rigorous styling. You shoud not need to change this file
+* much after initial creation.
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap");
+
+:root {
+  --primary: #396dff;
+  --primary--dim: #6987db;
+  --primary--light: #aac1ff;
+  --darkgrey: #d4d4d4;
+  --medgrey: #e0e0e0;
+  --grey: #f7f7f7;
+  --white: #fff;
+  --black: #000;
+  --red: #ff0000;
+
+  --xs: 4px;
+  --s: 8px;
+  --m: 16px;
+  --l: 24px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", sans-serif;
+  font-weight: 400;
+}
+
+form {
+  flex-grow: 1;
+}
+
+.u-flex {
+  display: flex;
+}
+
+.u-flexColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.u-flex-justifyCenter {
+  justify-content: center;
+}
+
+.u-flex-alignCenter {
+  align-items: center;
+}
+
+.u-block {
+  display: block;
+}
+
+.u-inlineBlock {
+  display: inline-block;
+}
+
+.u-bold {
+  font-weight: 600;
+}
+
+.u-textCenter {
+  text-align: center;
+}
+
+.u-relative {
+  position: relative;
+}
+
+.u-pointer {
+  cursor: pointer;
+}
+
+.u-link {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.u-link:hover {
+  color: var(--grey);
+}
+
+.u-button {
+  border-radius: 0;
+  font-size: var(--l);
+  font: inherit;
+  margin-left: 4%;
+  margin-right: 4%;
+  margin-top: 3%;
+  width: 40%;
+  padding: 3%;
+  box-sizing: border-box;
+  border-style: solid;
+}
+
+.u-submit-btn {
+  border-color: var(--primary);
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.u-cancel-btn {
+  border-color: var(--grey);
+  background-color: var(--grey);
+  color: var(--black);
+}
+
+.u-submit-btn:hover {
+  box-shadow: 0 0 1px var(--primary);
+  color: var(--white);
+}
+
+.u-cancel-btn:hover {
+  box-shadow: 0 0 1px var(--grey);
+  color: var(--black) !important;
+}
+
+.u-input {
+  font-size: var(--l);
+  font: inherit;
+  border-radius: 0;
+  border-color: var(--primary);
+  padding: var(--xs);
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.u-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.u-form-group {
+  margin-bottom: 10%;
+}
+
+.u-form-lable {
+  margin-bottom: 2%;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.u-spin-btn {
+  animation: spin 1s linear infinite;
+}
+
+.u-btn-image {
+  max-height: var(--m);
+}
+
+.u-error-msg {
+  color: var(--red);
+}
+
+.u-prompt {
+  font-size: var(--s);
+}
