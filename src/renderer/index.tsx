@@ -36,8 +36,6 @@ ReactDOM.render(
   document.getElementById("root")
 );
 
-// ReactDOM.render(<p>Hello World</p>, document.getElementById("root"));
-
 // allows for live updating
 declare const module: {
   hot: {
