@@ -51,3 +51,7 @@ npm run package
   - [ ] migrate fetch and clean email to JS/TS
   - [ ] migrate LLM API calls to JS/TS
   - [ ] update backend API calls to local services
+
+## Architecture
+
+![image](docs/architecture.drawio.svg)

@@ -90,3 +90,7 @@ typings/
 
 # Electron-Forge
 out/
+
+# project
+test.ts
+.vscode
