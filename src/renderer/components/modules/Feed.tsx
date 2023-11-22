@@ -16,7 +16,7 @@ const Feed = (props: FeedProps) => {
         width: "80%",
         height: "100%",
         boxSizing: "border-box",
-        overflow: "auto",
+        overflow: "hidden",
       }}
       pb="3%"
       pr="3%"

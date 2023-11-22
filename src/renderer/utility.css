@@ -177,3 +177,8 @@ form {
 .u-prompt {
   font-size: var(--s);
 }
+
+.fc-media-screen {
+  width: 100%;
+  height: 100%;
+}

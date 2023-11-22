@@ -409,7 +409,15 @@ const Calendar = (props: calendarProps) => {
   }, [query, eventStore]);
 
   return (
-    <Box sx={{ width: "100%" }}>
+    // calendar window(head + calendar)
+    // XPath: /html/body/div/div/main/div/div[2]/div
+    <Box 
+      sx={{ 
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+    }}>
       <HeaderToolBar calendarRef={calendarRef} setQuery={setQuery} />
       <FullCalendar
         ref={calendarRef}

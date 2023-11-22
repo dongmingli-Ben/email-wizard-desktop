@@ -72,6 +72,7 @@ const SideBar = (props: SideBarProps) => {
       sx={{
         bgcolor: "primary.main",
         width: "20vw",
+        overflow: "scroll",
       }}
     >
       <UserAccountInfo
