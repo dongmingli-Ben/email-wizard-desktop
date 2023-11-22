@@ -7,36 +7,18 @@ import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
 import React, { useState } from "react";
-import { appPut, backendConfig } from "../../utilities/requestUtility";
 import { verifyEmailAccount } from "../../utilities/verifyEmail";
 
 const updateMailboxCredentialsAPI = async (
-  req: any,
-  credentials: { [key: string]: string }
+  address: string,
+  credentials: StringMap
 ): Promise<string> => {
-  let add_req = {
-    credentials: credentials,
-  };
-  let errMsg = await appPut(
-    backendConfig.update_mailbox,
-    {
-      userId: req.userId,
-      userSecret: req.userSecret,
-      address: req.emailaddress,
-    },
-    add_req
-  )
-    .then((resp) => {
-      return "";
-    })
+  let errMsg = await window.electronAPI
+    .update_mailbox(address, credentials)
     .catch((e) => {
       console.log("caught error when adding mailbox:", e);
-      console.log(add_req);
-      if (e.response.status != 504) {
-        return e.response.data.errMsg;
-      } else {
-        return "Re-sync request timed out";
-      }
+      console.log(address);
+      return `fail to update mailbox ${address}: ${e}`;
     });
   console.log(errMsg);
   return errMsg;
@@ -49,7 +31,10 @@ const resyncEmailAccount = async (req: any): Promise<{ errMsg: string }> => {
       errMsg: resp.errMsg,
     };
   }
-  let errMsg = await updateMailboxCredentialsAPI(req, resp.credentials);
+  let errMsg = await updateMailboxCredentialsAPI(
+    req.emailaddress,
+    resp.credentials
+  );
   if (errMsg !== "") {
     return {
       errMsg: errMsg,
@@ -61,15 +46,11 @@ const resyncEmailAccount = async (req: any): Promise<{ errMsg: string }> => {
 };
 
 const UpdateAccountWindow = ({
-  userId,
-  userSecret,
   updateAccount,
   setUpdateAccount,
   callGetUserEvents,
   removeMailboxFromError,
 }: {
-  userId: number;
-  userSecret: string;
   updateAccount: { address: string; protocol: string };
   setUpdateAccount: (mailbox: { address: string; protocol: string }) => void;
   callGetUserEvents: () => void;
@@ -91,8 +72,6 @@ const UpdateAccountWindow = ({
       emailtype: updateAccount.protocol,
       emailaddress: updateAccount.address,
       password: data.get("password") as string,
-      userId: userId,
-      userSecret: userSecret,
       imapServer: data.get("server") as string,
       pop3Server: data.get("server") as string,
     };

@@ -5,7 +5,6 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SyncProblemIcon from "@mui/icons-material/SyncProblem";
 
 type UserAccountInfoProps = {
-  userName: string;
   userAccounts: { address: string; protocol: string }[];
   errorMailboxes: string[];
   setAddAccount: (status: boolean) => void;
@@ -151,7 +150,7 @@ const UserAccountInfo = (props: UserAccountInfoProps) => {
               width: "100%",
             }}
           >
-            {props.userName}
+            Mailbox
           </Typography>
         </Box>
       </Grid>

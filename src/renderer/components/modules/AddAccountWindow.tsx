@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { userInfoType } from "./SideBar";
 import { verifyEmailAccount } from "../../utilities/verifyEmail";
-import { appPost, backendConfig } from "../../utilities/requestUtility";
 import {
   Alert,
   Avatar,
@@ -20,8 +19,6 @@ import EmailIcon from "@mui/icons-material/Email";
 import LoadingButton from "@mui/lab/LoadingButton";
 
 type AddAccountWindowProps = {
-  userId: number;
-  userSecret: string;
   userInfo: userInfoType | undefined;
   setUserInfo: (info: userInfoType) => void;
   setAddAccount: (status: boolean) => void;
@@ -32,22 +29,11 @@ const addEmailAccountDBAPI = async (
   req: any,
   credentials: { [key: string]: string }
 ): Promise<string> => {
-  let add_req = {
-    type: req.emailtype,
-    address: req.emailaddress,
-    credentials: credentials,
-  };
-  let errMsg = await appPost(
-    backendConfig.add_mailbox,
-    { userId: req.userId, userSecret: req.userSecret },
-    add_req
-  )
-    .then((resp) => {
-      return "";
-    })
+  let errMsg = await window.electronAPI
+    .add_mailbox(req.emailtype, req.emailaddress, credentials)
     .catch((e) => {
       console.log("caught error when adding mailbox:", e);
-      console.log(add_req);
+      console.log(req, credentials);
       return "fail to add mailbox.";
     });
   return errMsg;
@@ -59,20 +45,19 @@ const newEmailAccount = async (
   let resp = await verifyEmailAccount(req);
   if (resp.errMsg !== "") {
     return {
-      userInfo: { username: "", useraccounts: [] },
+      userInfo: { useraccounts: [] },
       errMsg: resp.errMsg,
     };
   }
   let errMsg = await addEmailAccountDBAPI(req, resp.credentials);
   if (errMsg !== "") {
     return {
-      userInfo: { username: "", useraccounts: [] },
+      userInfo: { useraccounts: [] },
       errMsg: errMsg,
     };
   }
   return {
     userInfo: {
-      username: "",
       useraccounts: [{ address: req.emailaddress, protocol: req.emailtype }],
     },
     errMsg: "",
@@ -98,8 +83,6 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
       emailtype: emailType,
       emailaddress: data.get("address") as string,
       password: data.get("password") as string,
-      userId: props.userId,
-      userSecret: props.userSecret,
       imapServer: data.get("server") as string,
       pop3Server: data.get("server") as string,
     };
