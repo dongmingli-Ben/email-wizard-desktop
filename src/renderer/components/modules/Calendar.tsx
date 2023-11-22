@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { appGet, appPost, backendConfig } from "../../utilities/requestUtility";
 import { getAccessToken } from "../../utilities/verifyEmail";
 import { userInfoType } from "./SideBar";
 import { Box, Button, Link, Tooltip, Typography } from "@mui/material";
@@ -20,36 +19,23 @@ import {
 } from "../../utilities/searchUtility";
 
 type calendarProps = {
-  userId: number;
-  userSecret: string;
   userInfo: userInfoType | undefined;
   setErrorMailboxes: (addresses: string[]) => void;
   toGetUserEvents: boolean;
 };
 
-const updateEvents = async (
-  userId: number,
-  userSecret: string,
-  userInfo: userInfoType
-): Promise<string[]> => {
+const updateEvents = async (userInfo: userInfoType): Promise<string[]> => {
   let promises: Promise<string | undefined>[] = [];
   for (const mailbox of userInfo.useraccounts) {
-    let p = updateAccountEventsAPI(
-      userId,
-      userSecret,
-      mailbox.address,
-      mailbox.protocol
-    )
-      .then(() => {
-        return "";
+    let p = updateAccountEventsAPI(mailbox.address, mailbox.protocol)
+      .then((errMsg) => {
+        console.log("error msg for mailbox:", mailbox.address, ":", errMsg);
+        return errMsg.length === 0 ? "" : mailbox.address;
       })
       .catch((error) => {
-        console.log(error.response.data);
+        console.log(error);
         console.log(`fail to update events for mailbox:`, mailbox);
-        if (error.response.status != 504) {
-          return mailbox.address;
-        }
-        return "";
+        return mailbox.address;
       });
     promises.push(p);
   }
@@ -61,56 +47,36 @@ const updateEvents = async (
 };
 
 const updateAccountEventsAPI = async (
-  userId: number,
-  userSecret: string,
   address: string,
   protocol: string
-): Promise<void> => {
+): Promise<string> => {
   if (protocol === "IMAP" || protocol == "POP3" || protocol == "gmail") {
-    return appPost(
-      backendConfig.events,
-      { userId: userId, userSecret: userSecret },
-      {
-        address: address,
-        kwargs: {},
-      }
-    );
+    return window.electronAPI.update_events(address, {});
   } else if (protocol == "outlook") {
     let access_token = await getAccessToken(address);
     if (access_token.length === 0) {
       console.log("fail to get access token, got: ", access_token);
       return;
     }
-    return appPost(
-      backendConfig.events,
-      { userId: userId, userSecret: userSecret },
-      {
-        address: address,
-        kwargs: {
-          auth_token: access_token,
-        },
-      }
-    );
+    return window.electronAPI.update_events(address, {
+      auth_token: access_token,
+    });
   } else {
     throw `un-recognized mailbox type: ${protocol}`;
   }
 };
 
-const getEventsAPI = async (
-  userId: number,
-  userSecret: string,
-  query: string
-): Promise<{ [key: string]: any }[]> => {
-  return appGet(
-    backendConfig.events,
-    { userId: userId, userSecret: userSecret },
-    {
-      query: query,
-    }
-  )
+const getEventsAPI = async (): Promise<StringKeyMap[]> => {
+  return window.electronAPI
+    .get_events()
     .then((resp) => {
       console.log(`events returned`);
       console.log(resp);
+      if (!Array.isArray(resp)) {
+        console.log(`fail to get events`);
+        console.log(resp.errMsg);
+        return [];
+      }
       return resp;
     })
     .catch((e) => {
@@ -376,8 +342,6 @@ const Calendar = (props: calendarProps) => {
   const [query, setQuery] = useState<string>("");
   const calendarRef = useRef(null);
 
-  const receivedEvents: { [key: string]: any }[] = [];
-  let receivedNewEvents: boolean = false;
   let updateTimer: boolean = true;
 
   const prepareEventsForCalendar = (rawEvents: { [key: string]: string }[]) => {
@@ -406,12 +370,16 @@ const Calendar = (props: calendarProps) => {
   useEffect(() => {
     console.log("updating events for:", props.userInfo);
     if (props.userInfo !== undefined) {
-      updateEvents(props.userId, props.userSecret, props.userInfo).then(
-        (errMailboxes: string[]) => {
+      updateEvents(props.userInfo)
+        .then((errMailboxes: string[]) => {
           console.log("Mailboxes in error:", errMailboxes);
           props.setErrorMailboxes(errMailboxes);
-        }
-      );
+        })
+        .then(() => {
+          getEventsAPI().then((resp) => {
+            setEventStore(resp);
+          });
+        });
     }
   }, [props.userInfo, props.toGetUserEvents, updateTimer]);
 
@@ -420,44 +388,12 @@ const Calendar = (props: calendarProps) => {
   }, 1000 * 60 * 5);
 
   useEffect(() => {
-    // initiate a websocket connection
-    if (props.userId <= 0 || props.userSecret.length === 0) {
-      console.log("not logged in, skip websocket connection");
-      return;
-    }
-    const ws = new WebSocket(
-      backendConfig.ws.replace("{userId}", props.userId.toString())
-    );
-    ws.addEventListener("open", (event) => {
-      console.log("connected to websocket, sending authenication");
-      ws.send(props.userSecret);
-      console.log("sent authenication");
+    getEventsAPI().then((resp) => {
+      console.log("events returned");
+      console.log(resp);
+      setEventStore(resp);
     });
-    ws.addEventListener("message", (message) => {
-      // console.log("received message from websocket");
-      // console.log(message);
-      let event = JSON.parse(message.data);
-      receivedEvents.push(event);
-      receivedNewEvents = true;
-    });
-    ws.addEventListener("close", (event) => {
-      console.log("websocket closed");
-    });
-    return () => {
-      ws.close();
-    };
-  }, [props.userId, props.userSecret]);
-
-  setInterval(() => {
-    if (receivedNewEvents) {
-      console.log("received new events:", receivedEvents.length);
-      setEventStore([...receivedEvents]); // need to recreate the array, otherwise useEffect won't be triggered
-      // see https://stackoverflow.com/a/54621059/22896924
-      console.log("event store updated, length:", eventStore.length);
-      receivedNewEvents = false;
-      updateLocalSearchIndex(eventStore);
-    }
-  }, 500);
+  }, []);
 
   useEffect(() => {
     console.log("rerendering");
@@ -466,9 +402,10 @@ const Calendar = (props: calendarProps) => {
       setEvents(prepareEventsForCalendar(eventStore));
       return;
     }
+    let readyEvents = prepareEventsForCalendar(eventStore);
+    updateLocalSearchIndex(readyEvents);
     let matchEvents = localSearch(query);
-    let readyEvents = prepareEventsForCalendar(matchEvents);
-    setEvents(readyEvents);
+    setEvents(matchEvents);
   }, [query, eventStore]);
 
   return (

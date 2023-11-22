@@ -7,17 +7,10 @@ import { Box, Container } from "@mui/material";
 import DeleteAccountConfirmWindow from "../modules/DeleteAccountWindow";
 import UpdateAccountWindow from "../modules/UpdateAccountWindow";
 
-type CalendarPageProps = {
-  userId: number;
-  userSecret: string;
-  setUserId: (userId: number) => void;
-  setUserSecret: (userSecret: string) => void;
-};
-
 /**
  * Define the "CalendarPage" component as a function.
  */
-const CalendarPage = (props: CalendarPageProps) => {
+const CalendarPage = () => {
   const [addAccount, setAddAccount] = useState(false);
   const [deleteAccount, setDeleteAccount] = useState("");
   const [updateAccount, setUpdateAccount] = useState<{
@@ -46,26 +39,6 @@ const CalendarPage = (props: CalendarPageProps) => {
     setErrorMailboxes(mailboxes);
   };
 
-  const navigate = useNavigate();
-  useEffect(() => {
-    const delay = 100;
-
-    // Introduce a delay using setTimeout
-    const timerId = setTimeout(() => {
-      // Check user id here
-      if (props.userId <= 0 || props.userSecret.length === 0) {
-        // Navigate the user to the login page
-        console.log(
-          `current user id: ${props.userId}, secret: ${props.userSecret}`
-        );
-        navigate("/login");
-      }
-    }, delay);
-
-    // Clear the timeout if the component unmounts or the effect is re-executed
-    return () => clearTimeout(timerId);
-  }, [props.userId, props.userSecret]);
-
   return (
     // <> is like a <div>, but won't show
     // up in the DOM tree
@@ -88,10 +61,6 @@ const CalendarPage = (props: CalendarPageProps) => {
         }}
       >
         <SideBar
-          userId={props.userId}
-          userSecret={props.userSecret}
-          setUserId={props.setUserId}
-          setUserSecret={props.setUserSecret}
           userInfo={userInfo}
           setUserInfo={setUserInfo}
           setAddAccount={setAddAccount}
@@ -101,8 +70,6 @@ const CalendarPage = (props: CalendarPageProps) => {
           errorMailboxes={errorMailboxes}
         />
         <Feed
-          userId={props.userId}
-          userSecret={props.userSecret}
           userInfo={userInfo}
           setErrorMailboxes={setErrorMailboxes}
           toGetUserEvents={toGetUserEvents}
@@ -110,8 +77,6 @@ const CalendarPage = (props: CalendarPageProps) => {
       </Box>
       {addAccount ? (
         <AddAccountWindow
-          userId={props.userId}
-          userSecret={props.userSecret}
           userInfo={userInfo}
           setUserInfo={setUserInfo}
           setAddAccount={setAddAccount}
@@ -122,8 +87,6 @@ const CalendarPage = (props: CalendarPageProps) => {
       )}
       {deleteAccount !== "" ? (
         <DeleteAccountConfirmWindow
-          userId={props.userId}
-          userSecret={props.userSecret}
           deleteAccount={deleteAccount}
           setDeleteAccount={setDeleteAccount}
           callGetUserInfo={callGetUserInfo}
@@ -133,8 +96,6 @@ const CalendarPage = (props: CalendarPageProps) => {
       )}
       {updateAccount.address !== "" ? (
         <UpdateAccountWindow
-          userId={props.userId}
-          userSecret={props.userSecret}
           updateAccount={updateAccount}
           setUpdateAccount={setUpdateAccount}
           callGetUserEvents={callGetUserEvents}

@@ -4,8 +4,6 @@ import { userInfoType } from "./SideBar";
 import { Box } from "@mui/material";
 
 type FeedProps = {
-  userId: number;
-  userSecret: string;
   userInfo: userInfoType | undefined;
   toGetUserEvents: boolean;
   setErrorMailboxes: (addresses: string[]) => void;
@@ -26,8 +24,6 @@ const Feed = (props: FeedProps) => {
       pt={3}
     >
       <Calendar
-        userId={props.userId}
-        userSecret={props.userSecret}
         userInfo={props.userInfo}
         setErrorMailboxes={props.setErrorMailboxes}
         toGetUserEvents={props.toGetUserEvents}

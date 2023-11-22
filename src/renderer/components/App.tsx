@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import CalendarPage from "./pages/CalendarPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
 
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
@@ -31,13 +29,6 @@ type AppProps = {
  * Define the "App" component as a function.
  */
 const App = ({ pca }: AppProps) => {
-  const [userId, setUserId] = useState(-1);
-  const [userSecret, setUserSecret] = useState("");
-
-  useEffect(() => {
-    tryLoadUserCredentials(setUserId, setUserSecret);
-  }, []);
-
   return (
     // <> is like a <div>, but won't show
     // up in the DOM tree
@@ -45,40 +36,7 @@ const App = ({ pca }: AppProps) => {
       <ThemeProvider theme={theme}>
         <div className="app-container body">
           <Routes>
-            <Route
-              path="/calendar"
-              element={
-                <CalendarPage
-                  userId={userId}
-                  userSecret={userSecret}
-                  setUserId={setUserId}
-                  setUserSecret={setUserSecret}
-                />
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <LoginPage
-                  userId={userId}
-                  userSecret={userSecret}
-                  setUserId={setUserId}
-                  setUserSecret={setUserSecret}
-                />
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <LoginPage
-                  userId={userId}
-                  userSecret={userSecret}
-                  setUserId={setUserId}
-                  setUserSecret={setUserSecret}
-                />
-              }
-            />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/" element={<IntroPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

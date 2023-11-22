@@ -6,19 +6,10 @@ import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
 import React, { useState } from "react";
-import { appDelete, backendConfig } from "../../utilities/requestUtility";
 
-const removeMailbox = async (
-  userId: number,
-  userSecret: string,
-  address: string
-): Promise<string> => {
+const removeMailbox = async (address: string): Promise<string> => {
   console.log("removing mailbox:", address);
-  let errMsg = await appDelete(backendConfig.remove_mailbox, {
-    userId: userId,
-    userSecret: userSecret,
-    address: address,
-  }).catch((err) => {
+  let errMsg = await window.electronAPI.remove_mailbox(address).catch((err) => {
     console.log("encounter error when removing mailbox:", err);
     return `fail to remove mailbox: ${err}`;
   });
@@ -26,14 +17,10 @@ const removeMailbox = async (
 };
 
 const DeleteAccountConfirmWindow = ({
-  userId,
-  userSecret,
   deleteAccount,
   setDeleteAccount,
   callGetUserInfo,
 }: {
-  userId: number;
-  userSecret: string;
   deleteAccount: string;
   setDeleteAccount: (s: string) => void;
   callGetUserInfo: () => void;
@@ -102,16 +89,14 @@ const DeleteAccountConfirmWindow = ({
                 loading={loading}
                 onClick={() => {
                   setLoading(true);
-                  removeMailbox(userId, userSecret, deleteAccount).then(
-                    (errMsg: string) => {
-                      setErrMsg(errMsg);
-                      setLoading(false);
-                      if (errMsg === "") {
-                        setDeleteAccount("");
-                        callGetUserInfo();
-                      }
+                  removeMailbox(deleteAccount).then((errMsg: string) => {
+                    setErrMsg(errMsg);
+                    setLoading(false);
+                    if (errMsg === "") {
+                      setDeleteAccount("");
+                      callGetUserInfo();
                     }
-                  );
+                  });
                 }}
               >
                 Remove

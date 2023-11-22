@@ -33,8 +33,9 @@ npm run package
 ## Tasks
 
 - [ ] UI accomodation
-  - [ ] remove sign in and register page
+  - [x] remove sign in and register page
   - [ ] change intro page (when user has not added any mailbox) to a "empty" page
+    - [ ] automatically display the calendar page when there is at least one mailbox registered
   - [ ] migrate all `<Link>`s to open in an external browser
 - [ ] UI improvement
   - [ ] set the left bar of the calendar page to be fixed

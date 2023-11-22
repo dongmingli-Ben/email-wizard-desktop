@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -11,6 +11,15 @@ import { IconButton } from "@mui/material";
 
 function IntroductionPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.electronAPI.get_mailboxes().then((resp) => {
+      if (Array.isArray(resp) && resp.length > 0) {
+        navigate("/calendar");
+      }
+    });
+  }, []);
+
   return (
     <Container
       fixed
@@ -74,27 +83,16 @@ function IntroductionPage() {
           <Typography variant="subtitle1" color="common.white">
             Preview! Still in progress.
           </Typography>
-          <div>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => {
-                navigate("/login");
-              }}
-            >
-              Log In
-            </Button>
-            <Button
-              variant="text"
-              color="secondary"
-              style={{ marginLeft: "16px" }}
-              onClick={() => {
-                navigate("/register");
-              }}
-            >
-              Register
-            </Button>
-          </div>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              // todo: implement add mailbox on intro page
+              navigate("/calendar");
+            }}
+          >
+            Add Mailbox
+          </Button>
         </Box>
       </Container>
     </Container>

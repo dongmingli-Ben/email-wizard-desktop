@@ -1,6 +1,6 @@
 import { msalInstance } from "../index";
 import { graphConfig, tokenRequest, gmailConfig } from "./authConfig";
-import { backendConfig, get, sleep } from "./requestUtility";
+import { sleep } from "./requestUtility";
 
 type VerifyResposne = {
   errMsg: string;
@@ -96,15 +96,17 @@ const verifyIMAP = async (
   password: string,
   imapServer: string
 ): Promise<VerifyResposne> => {
-  let resp = await get(backendConfig.verify_email, {
-    username: address,
-    password: password,
-    imap_server: imapServer,
-    type: "IMAP",
-  }).catch((e) => {
-    console.log("error in verifyIMAP:", e);
-    return { errMsg: "Fail to verify your email. Please check your inputs." };
-  });
+  let resp = await window.electronAPI
+    .verify_email({
+      username: address,
+      password: password,
+      imap_server: imapServer,
+      type: "IMAP",
+    })
+    .catch((e) => {
+      console.log("error in verifyIMAP:", e);
+      return { errMsg: "Fail to verify your email. Please check your inputs." };
+    });
   console.log(resp);
   if ("errMsg" in resp) {
     return { errMsg: resp.errMsg, credentials: {} };
