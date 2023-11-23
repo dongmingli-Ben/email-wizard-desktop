@@ -75,7 +75,8 @@ const SideBar = (props: SideBarProps) => {
       sx={{
         bgcolor: "primary.main",
         width: "20vw",
-        // overflow: "scroll",
+        minWidth: "200px",
+        overflow: "scroll",
         display: "flex",
         flexDirection: "column",
         pb: 2,
