@@ -184,6 +184,6 @@ form {
 }
 
 .fc-daygrid-day-events {
-  height: 50px;
+  height: 10vh;
   overflow: scroll;
 }
