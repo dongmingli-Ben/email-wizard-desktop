@@ -267,18 +267,18 @@ const HeaderToolBar = ({
   const updateTitle = () => {
     let date = new Date(calendarRef.current.getApi().getDate());
     const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
       "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      "Jun", 
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
     setTitle(`${monthNames[date.getMonth()]} ${date.getFullYear()}`);
   };

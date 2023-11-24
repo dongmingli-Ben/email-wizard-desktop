@@ -80,6 +80,9 @@ const SideBar = (props: SideBarProps) => {
         display: "flex",
         flexDirection: "column",
         pb: 2,
+        "@media (max-width: 800px)": {
+          display: "none",
+        },
       }}
     >
       <UserAccountInfo
