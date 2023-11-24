@@ -187,3 +187,7 @@ form {
   height: 10vh;
   overflow: scroll;
 }
+
+::-webkit-scrollbar {
+  display: none;
+}
