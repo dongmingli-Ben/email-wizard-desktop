@@ -91,7 +91,7 @@ export async function retrieveEmailGmail(
         sender: sender,
         date: date,
         recipient: recipient,
-        contents: contents,
+        content: contents,
       };
       return [msgId, raw_email];
     }

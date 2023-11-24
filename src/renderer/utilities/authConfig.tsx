@@ -38,8 +38,8 @@ export const graphConfig = {
 
 export const gmailConfig = {
   client_id:
-    "242378580939-kkgf0o88qh5so9jlvls0i1gm2c48fdcl.apps.googleusercontent.com",
-  redirect_uri: "https://www.toymaker-ben.online/calendar",
+    "788708013208-o3mn0i3rlp5km6mpplv9h353sguup2dv.apps.googleusercontent.com",
+  redirect_uri: "http://localhost:59890",
   response_type: "code",
   scope: ["https://www.googleapis.com/auth/gmail.readonly"],
   access_type: "offline",
