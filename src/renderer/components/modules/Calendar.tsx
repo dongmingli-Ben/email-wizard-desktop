@@ -346,6 +346,8 @@ const HeaderToolBar = ({
   );
 };
 
+// Import other necessary dependencies at the beginning of your file
+
 const Calendar = (props: calendarProps) => {
   const [eventStore, setEventStore] = useState<{ [key: string]: string }[]>([]);
   const [events, setEvents] = useState<{ [key: string]: any }[]>([]);
@@ -357,7 +359,7 @@ const Calendar = (props: calendarProps) => {
   const prepareEventsForCalendar = (rawEvents: { [key: string]: string }[]) => {
     let events: { [key: string]: any }[] = [];
     for (const e of rawEvents) {
-      if ("end_time" in e && e.end_time != "unspecified") {
+      if ("end_time" in e && e.end_time !== "unspecified") {
         let startTime = "start_time" in e ? e.start_time : e.end_time;
         events = [
           ...events,
@@ -376,6 +378,49 @@ const Calendar = (props: calendarProps) => {
     console.log(events);
     return events;
   };
+
+  const handleEventsSet = () => {
+    const calendarApi = calendarRef.current?.getApi();
+  
+    if (calendarApi) {
+      const dayEventContainers = document.querySelectorAll('.fc-daygrid-day-events');
+  
+      dayEventContainers.forEach((container) => {
+        const moreEvents = container.querySelectorAll('.more-events');
+  
+        if (moreEvents.length > 0) {
+          moreEvents.forEach((moreEvent) => {
+            moreEvent.remove();
+          });
+        }
+  
+        const eventEls = container.querySelectorAll('.fc-daygrid-event-harness');
+  
+        if (eventEls.length > 0) {
+          const maxEventsToShow = 1; // Adjust this number as needed
+          const totalEvents = events.length;
+  
+          if (totalEvents > maxEventsToShow) {
+            const hiddenEvents = totalEvents - maxEventsToShow;
+            const moreEvent = document.createElement('div');
+            moreEvent.className = 'more-events';
+            moreEvent.innerHTML = `+ ${hiddenEvents} more`;
+            moreEvent.onclick = () => {
+              // Handle the click event for the "N more" element if needed
+            };
+            
+            for (let i = maxEventsToShow; i < eventEls.length; i++) {
+              eventEls[i].style.display = 'none';
+            }
+            
+            const lastEventEl = eventEls[eventEls.length - 1];
+            lastEventEl.after(moreEvent);
+          }
+        }
+      });
+    }
+  };
+  
 
   useEffect(() => {
     console.log("updating events for:", props.userInfo);
@@ -451,6 +496,8 @@ const Calendar = (props: calendarProps) => {
         headerToolbar={false}
         eventBackgroundColor="white"
         eventContent={(arg) => <CustomEvent event={arg.event} />}
+        height={"100%"}
+        eventsSet={handleEventsSet}
       />
     </Box>
   );

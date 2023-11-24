@@ -9,7 +9,7 @@ export const DUMMY_EVENTS = [
   {
     event_type: "registration",
     end_time: "2023-11-06T12:00:00 Asia/Shanghai",
-    summary: "2023大学......",
+    summary: "1. 2023大学......",
     venue: "https://....../vm/YVgulbu.aspx",
   },
   {
@@ -147,7 +147,7 @@ export const DUMMY_EVENTS = [
   {
     event_type: "registration",
     end_time: "2023-11-26T12:00:00 Asia/Shanghai",
-    summary: "2023大学......",
+    summary: "24. 2023大学......",
     venue: "https://....../vm/YVgulbu.aspx",
   },
 ];
