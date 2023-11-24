@@ -91,6 +91,7 @@
     "jsdom": "^22.1.0",
     "mailparser": "^3.6.5",
     "open": "^9.1.0",
+    "openai": "^4.20.0",
     "react-hot-loader": "^4.13.0",
     "style-loader": "^2.0.0"
   }
