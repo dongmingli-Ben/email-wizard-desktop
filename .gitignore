@@ -92,5 +92,7 @@ typings/
 out/
 
 # project
-test.ts
 .vscode
+/tests/
+token.json
+configs
