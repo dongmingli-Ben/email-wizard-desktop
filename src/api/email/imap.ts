@@ -66,7 +66,6 @@ export async function retrieveEmailIMAP(
                 }),
                 content: [parsed.text],
               };
-              emails.push([seqno.toString(), email]);
               contentReady = true;
             });
           });
