@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { getAccessToken } from "../../utilities/verifyEmail";
 import { userInfoType } from "./SideBar";
 import { Box, Button, Link, Tooltip, Typography } from "@mui/material";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
@@ -43,6 +42,7 @@ const updateEvents = async (userInfo: userInfoType): Promise<string[]> => {
   let mailboxes = errorousMailboxes
     .map((addr) => addr as string)
     .filter((address) => address !== "");
+  console.log("errorous mailboxes:", mailboxes);
   return mailboxes;
 };
 
@@ -50,17 +50,8 @@ const updateAccountEventsAPI = async (
   address: string,
   protocol: string
 ): Promise<string> => {
-  if (protocol === "IMAP" || protocol == "POP3" || protocol == "gmail") {
+  if (protocol === "IMAP" || protocol == "outlook" || protocol == "gmail") {
     return window.electronAPI.update_events(address, {});
-  } else if (protocol == "outlook") {
-    let access_token = await getAccessToken(address);
-    if (access_token.length === 0) {
-      console.log("fail to get access token, got: ", access_token);
-      return;
-    }
-    return window.electronAPI.update_events(address, {
-      auth_token: access_token,
-    });
   } else {
     throw `un-recognized mailbox type: ${protocol}`;
   }
