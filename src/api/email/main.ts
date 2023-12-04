@@ -12,7 +12,7 @@ async function retrieveRawEmails(
   credentials: StringMap,
   nMails: number
 ): Promise<[string, StringKeyMap][]> {
-  if (protocol === "imap") {
+  if (protocol === "IMAP") {
     return await retrieveEmailIMAP(address, credentials, nMails);
   } else if (protocol === "outlook") {
     return await retrieveEmailOutlook(address, credentials, nMails);

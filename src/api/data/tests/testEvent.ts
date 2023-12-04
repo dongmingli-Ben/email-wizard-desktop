@@ -6,7 +6,7 @@ function testAdd(): void {
   addRow(
     {
       address: "example.com",
-      protocol: "imap",
+      protocol: "IMAP",
       credentials: {},
     },
     "mailboxes"

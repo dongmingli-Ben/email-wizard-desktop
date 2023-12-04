@@ -2,7 +2,7 @@ import { addEventsInDB, getMailboxInfoFromDB } from "./data/main";
 import { addRow, deleteRows, query, updateValue } from "./data/utils";
 import { retrieveEmails } from "./email/main";
 import { parseEmail } from "./parse/main";
-import { getApiKey } from "./utils";
+import { getApiKey, refreshCredentialsIfExpire } from "./utils";
 
 type StringMap = { [key: string]: string };
 type StringKeyMap = { [key: string]: any };
@@ -29,13 +29,16 @@ export async function handleUpdateEvents(
 ): Promise<string> {
   let errMsg = "";
   try {
+    await refreshCredentialsIfExpire(address);
     let mailbox = await getMailboxInfoFromDB(address);
+    console.log("retrieving emails for address: " + address);
     let emails = await retrieveEmails(
       mailbox.address,
       mailbox.protocol,
       mailbox.credentials,
       N_MAILS
     );
+    console.log(`retrieved ${emails.length} emails for address: ` + address);
     await Promise.all(
       emails.map(async ([id, email]) => {
         let result = query(["*"], { email_id: id }, "emails");
@@ -50,14 +53,18 @@ export async function handleUpdateEvents(
           },
           "emails"
         );
+        console.log(`parsing email: ${id}, address: ${address}`);
         let events = await parseEmail(email, await getApiKey(), 5, kwargs);
+        console.log(`storing ${events.length} events for email: ${id}`);
         await addEventsInDB(events, id, address);
       })
     );
   } catch (e) {
+    console.log("error in handleUpdateEvents for address: " + address);
     console.log(e);
     errMsg = e.message;
   }
+  console.log(address, errMsg);
   return errMsg;
 }
 
@@ -96,7 +103,7 @@ export async function handleAddMailbox(
   type: string,
   address: string,
   credentials: StringMap
-): Promise<StringKeyMap> {
+): Promise<string> {
   let errMsg = "";
   try {
     addRow(
@@ -111,7 +118,7 @@ export async function handleAddMailbox(
     console.log(e);
     errMsg = e.message;
   }
-  return { errMsg: errMsg };
+  return errMsg;
 }
 
 export async function handleRemoveMailbox(address: string): Promise<string> {
