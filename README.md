@@ -18,6 +18,17 @@ Install dependencies:
 npm install
 ```
 
+Rebuild the dependencies for `better-sqlite3` with [`electron/rebuild`](https://github.com/electron/rebuild):
+
+```bash
+# windows
+.\node_modules\.bin\electron-rebuild.cmd
+# mac/linux
+$(npm bin)/electron-rebuild
+```
+
+Note that for developer, each time a new package is installed via `npm install`, you need to rebuilt the package with the above command.
+
 Run the app with webpack dev server:
 
 ```bash
