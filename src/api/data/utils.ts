@@ -72,6 +72,13 @@ export function deleteRows(where: StringKeyMap, table: string): void {
   db.close();
 }
 
+/**
+ * Query the database.
+ * @param cols columns to query. '*' means all columns.
+ * @param where the where clause ('=' only). When empty, all rows are returned.
+ * @param table table to query
+ * @returns a list of JSON objects
+ */
 export function query(cols: string[], where: StringKeyMap, table: string): any {
   const db = new Database("app.db");
   const keys = Object.keys(where);

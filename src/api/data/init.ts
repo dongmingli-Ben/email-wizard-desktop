@@ -1,6 +1,10 @@
 import Database from "better-sqlite3";
 import * as fs from "fs";
 
+/**
+ * Initialize the database.
+ * @param redo whether to re-initialize the database if it already exists. Defaults to false.
+ */
 export function initDatabase(redo: boolean = false): void {
   if (redo && fs.existsSync("app.db")) {
     fs.unlinkSync("app.db");

@@ -41,11 +41,7 @@ async function testAPI(): Promise<void> {
     },
   ];
   await addEventsInDB(events, "1234", "example.com");
-  let r = query(
-    ["event_id", "email_id", "email_address", "event_content"],
-    {},
-    "events"
-  );
+  let r = query(["*"], {}, "events");
   console.log(r);
 }
 
