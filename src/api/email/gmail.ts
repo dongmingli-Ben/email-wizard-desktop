@@ -48,7 +48,7 @@ export async function retrieveEmailGmail(
   nMails: number
 ): Promise<[string, StringKeyMap][]> {
   const appCreds = await getCredentials();
-  const { client_secret, client_id, redirect_uris } = appCreds.installed;
+  const { client_secret, client_id, redirect_uris } = appCreds.web;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,

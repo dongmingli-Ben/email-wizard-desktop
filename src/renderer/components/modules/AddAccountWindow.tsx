@@ -39,29 +39,16 @@ const addEmailAccountDBAPI = async (
   return errMsg;
 };
 
-const newEmailAccount = async (
-  req: any
-): Promise<{ userInfo: userInfoType; errMsg: string }> => {
+const newEmailAccount = async (req: any): Promise<string> => {
   let resp = await verifyEmailAccount(req);
   if (resp.errMsg !== "") {
-    return {
-      userInfo: { useraccounts: [] },
-      errMsg: resp.errMsg,
-    };
+    return resp.errMsg;
   }
   let errMsg = await addEmailAccountDBAPI(req, resp.credentials);
   if (errMsg !== "") {
-    return {
-      userInfo: { useraccounts: [] },
-      errMsg: errMsg,
-    };
+    return errMsg;
   }
-  return {
-    userInfo: {
-      useraccounts: [{ address: req.emailaddress, protocol: req.emailtype }],
-    },
-    errMsg: "",
-  };
+  return "";
 };
 
 const AddAccountWindow = (props: AddAccountWindowProps) => {
@@ -88,14 +75,14 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
     };
     console.log(req);
     newEmailAccount(req)
-      .then((resp: { userInfo: userInfoType; errMsg: string }) => {
+      .then((errMsg) => {
         setLoading(false);
-        if (resp.errMsg === "") {
-          console.log("adding new mailbox to user:", resp);
+        if (errMsg === "") {
           props.callGetUserInfo();
           props.setAddAccount(false);
         } else {
-          setErrorMsg(resp.errMsg);
+          console.log("error when adding mailbox:", errMsg);
+          setErrorMsg(errMsg);
         }
       })
       .catch((err) => {
