@@ -1,0 +1,11 @@
+// tests/tsconfig.json
+{
+  "extends": "../../../tsconfig.json",
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "outDir": "out",
+    "sourceMap": true,
+    "esModuleInterop": true
+  }
+}
