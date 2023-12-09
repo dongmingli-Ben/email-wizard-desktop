@@ -2,7 +2,11 @@ import { addEventsInDB, getMailboxInfoFromDB } from "./data/main";
 import { addRow, deleteRows, query, updateValue } from "./data/utils";
 import { retrieveEmails } from "./email/main";
 import { parseEmail } from "./parse/main";
-import { getApiKey, refreshCredentialsIfExpire } from "./utils";
+import {
+  getApiKey,
+  refreshCredentialsIfExpire,
+  revokeMailboxCredentials,
+} from "./utils";
 
 type StringMap = { [key: string]: string };
 type StringKeyMap = { [key: string]: any };
@@ -68,17 +72,6 @@ export async function handleUpdateEvents(
   return errMsg;
 }
 
-/**
- * Verify whether we can access the mailbox with the given credentials.
- * @param req add mailbox request
- * @returns the credentials of the mailbox if the mailbox is successfully added, otherwise an error message
- */
-export async function handleVerifyMailbox(
-  req: StringMap
-): Promise<StringKeyMap> {
-  return {};
-}
-
 export async function handleGetMailboxes(): Promise<
   StringMap[] | StringKeyMap
 > {
@@ -123,6 +116,7 @@ export async function handleAddMailbox(
 
 export async function handleRemoveMailbox(address: string): Promise<string> {
   try {
+    await revokeMailboxCredentials(address);
     deleteRows({ email_address: address }, "events");
     deleteRows({ email_address: address }, "emails");
     deleteRows({ address: address }, "mailboxes");

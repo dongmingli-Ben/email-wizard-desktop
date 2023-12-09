@@ -123,6 +123,34 @@ export async function refreshGmailCredentials(
   );
 }
 
+export async function revokeGmailCredentials(
+  address: string,
+  credentials: StringKeyMap
+): Promise<void> {
+  const appCreds = await getCredentials();
+  const { client_secret, client_id, redirect_uris } = appCreds.web;
+
+  const oAuth2Client = new google.auth.OAuth2(
+    client_id,
+    client_secret,
+    redirect_uris[0]
+  );
+
+  // Set the refresh token
+  oAuth2Client.setCredentials(credentials);
+  try {
+    const resp = await oAuth2Client.revokeCredentials();
+    console.log("Credentials have been revoked");
+  } catch (e) {
+    console.log("error:", e.response.data);
+    if (e.response.data.error === "invalid_token") {
+      console.log("Credentials have been revoked");
+      return;
+    }
+    throw { message: e.response.data.error_description };
+  }
+}
+
 type VerifyResposne = {
   errMsg: string;
   credentials: { [key: string]: any };
