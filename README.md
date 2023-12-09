@@ -56,7 +56,7 @@ npm run package
     - [ ] fixed-height calendar cell?
   - [ ] more beautiful tooltip display when hovering over events?
   - [ ] responsive layout (Peng)
-- [ ] function migration (Dongming)
+- [x] function migration (Dongming)
   - [x] change Outlook and Gmail's Oauth2 flow to the one suited for desktop application
   - [x] change database to local data
     - [x] update schema
