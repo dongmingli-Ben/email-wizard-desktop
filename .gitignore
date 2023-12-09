@@ -96,3 +96,4 @@ out/
 /tests/
 token.json
 configs
+app.db
