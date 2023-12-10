@@ -48,7 +48,7 @@ npm run package
   - [ ] change intro page (when user has not added any mailbox) to a "empty" page (Peng)
     - [ ] ask for new mailbox if there isn't one already
     - [ ] ask for openai api key if it is not already set
-  - [ ] migrate all `<Link>`s to open in an external browser
+  - [x] migrate all `<Link>`s to open in an external browser
 - [ ] UI improvement
   - [ ] "n more" display (Dongming, Peng)
     - [ ] set the left bar of the calendar page to be fixed
