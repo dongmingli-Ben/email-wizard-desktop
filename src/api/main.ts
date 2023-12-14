@@ -1,3 +1,4 @@
+import { shell } from "electron";
 import { addEventsInDB, getMailboxInfoFromDB } from "./data/main";
 import { addRow, deleteRows, query, updateValue } from "./data/utils";
 import { retrieveEmails } from "./email/main";
@@ -138,4 +139,8 @@ export async function handleUpdateMailbox(
     console.log(e);
     return e.message;
   }
+}
+
+export function handleOpenURLInBrowser(url: string): void {
+  shell.openExternal(url);
 }

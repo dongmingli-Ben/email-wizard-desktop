@@ -21,4 +21,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("verify:outlook", address),
   verify_imap: (address: string, credentials: StringMap) =>
     ipcRenderer.invoke("verify:imap", address, credentials),
+  browser_open: (url: string) => ipcRenderer.invoke("browser:open", url),
 });

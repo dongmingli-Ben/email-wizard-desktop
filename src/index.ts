@@ -3,6 +3,7 @@ import {
   handleAddMailbox,
   handleGetEvents,
   handleGetMailboxes,
+  handleOpenURLInBrowser,
   handleRemoveMailbox,
   handleUpdateEvents,
   handleUpdateMailbox,
@@ -67,6 +68,9 @@ app.on("ready", () => {
   });
   ipcMain.handle("verify:imap", (event, ...args) => {
     return handleVerifyIMAP(args[0], args[1]);
+  });
+  ipcMain.handle("browser:open", (event, ...args) => {
+    return handleOpenURLInBrowser(args[0]);
   });
 });
 

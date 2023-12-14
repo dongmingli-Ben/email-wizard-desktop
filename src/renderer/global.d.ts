@@ -23,6 +23,7 @@ export interface IElectronAPI {
     address: string,
     credentials: StringMap
   ) => Promise<VerifyResposne>;
+  browser_open: (url: string) => Promise<void>;
 }
 
 declare global {

@@ -95,7 +95,14 @@ const EventPopupDisplay = ({ event }: { event: { [key: string]: string } }) => {
       place = [
         ...place,
         <span key={i}> {venue.substring(lastIndex, index)} </span>,
-        <Link href={url} color="inherit" key={i + 1}>
+        <Link
+          component="button"
+          onClick={() => {
+            window.electronAPI.browser_open(url);
+          }}
+          color="inherit"
+          key={i + 1}
+        >
           URL Link
         </Link>,
       ];
@@ -402,13 +409,14 @@ const Calendar = (props: calendarProps) => {
   return (
     // calendar window(head + calendar)
     // XPath: /html/body/div/div/main/div/div[2]/div
-    <Box 
-      sx={{ 
+    <Box
+      sx={{
         display: "flex",
         flexDirection: "column",
         width: "100%",
         height: "100%",
-    }}>
+      }}
+    >
       <HeaderToolBar calendarRef={calendarRef} setQuery={setQuery} />
       <FullCalendar
         ref={calendarRef}
