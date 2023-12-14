@@ -154,3 +154,4 @@ const SettingsTab = (props: { setOpenSettings: (status: boolean) => void }) => {
 
 export default SideBar;
 export type { userInfoType };
+export { getUserInfoAPI };

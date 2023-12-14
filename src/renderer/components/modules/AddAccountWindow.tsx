@@ -72,8 +72,13 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
       password: data.get("password") as string,
       imapServer: data.get("server") as string,
       pop3Server: data.get("server") as string,
+      openai_api_key: data.get("openai_api_key") as string,
     };
     console.log(req);
+    // todo: add openai api key to local storage
+    if (req.openai_api_key !== undefined) {
+      sessionStorage.setItem("openai_api_key", req.openai_api_key);
+    }
     newEmailAccount(req)
       .then((errMsg) => {
         setLoading(false);
@@ -98,7 +103,7 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        backgroundColor: "primary.main",
         zIndex: 1,
       }}
     >
@@ -212,6 +217,20 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
                   type="text"
                   id="server"
                   autoComplete="xxx.pop3.com"
+                />
+              ) : (
+                <></>
+              )}
+              {sessionStorage.getItem("openai_api_key") === null ? (
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="openai_api_key"
+                  label="OpenAI API Key"
+                  type="text"
+                  id="openai_api_key"
+                  autoComplete="xxx-xxx-xxx"
                 />
               ) : (
                 <></>

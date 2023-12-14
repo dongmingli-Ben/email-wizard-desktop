@@ -7,6 +7,7 @@ import { Box, Container } from "@mui/material";
 import DeleteAccountConfirmWindow from "../modules/DeleteAccountWindow";
 import UpdateAccountWindow from "../modules/UpdateAccountWindow";
 import SettingsWindow from "../modules/SettingsWindow";
+import { getUserInfoAPI } from "../modules/SideBar";
 
 /**
  * Define the "CalendarPage" component as a function.
@@ -41,6 +42,45 @@ const CalendarPage = () => {
     let mailboxes = errorMailboxes.filter((addr) => addr != address);
     setErrorMailboxes(mailboxes);
   };
+
+  // output type of userInfo
+  // judge whether userInfo is undefined
+  const isNoAccount = (userInfo: userInfoType | undefined): boolean => {
+    if (userInfo === undefined) {
+      console.log("userInfo is undefined");
+      return true;
+    }
+    if (userInfo.useraccounts.length === 0) {
+      console.log("userInfo.useraccounts is empty");
+      console.log(userInfo)
+      return true;
+    }
+    return false;
+  }
+
+  useEffect(() => {
+    getUserInfoAPI()
+      .then(({ userAccounts, errMsg }) => {
+        console.log(userAccounts);
+        setUserInfo({
+          useraccounts: userAccounts,
+        });
+      })
+      .catch((e) => {
+        console.log("fail to fetch user profile:", e);
+      });
+  }, [toGetUserInfo]);
+
+  if (isNoAccount(userInfo)) {
+    return (
+      <AddAccountWindow
+          userInfo={userInfo}
+          setUserInfo={setUserInfo}
+          setAddAccount={setAddAccount}
+          callGetUserInfo={callGetUserInfo}
+        />
+    )
+  }
 
   return (
     // <> is like a <div>, but won't show
