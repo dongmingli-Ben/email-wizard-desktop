@@ -28,8 +28,8 @@ function getRawTexts(payload: gmail_v1.Schema$MessagePart): string[] {
   let mime = payload.mimeType;
   let contents: string[] = [];
   if (
-    mime.startsWith("multipart") ||
-    (payload.body.size == 0 && payload.parts.length > 0)
+    payload.parts !== undefined && (mime.startsWith("multipart") ||
+    (payload.body.size == 0 && payload.parts.length > 0))
   ) {
     for (const part of payload.parts) {
       let childrens = getRawTexts(part);

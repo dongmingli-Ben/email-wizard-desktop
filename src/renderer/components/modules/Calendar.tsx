@@ -410,7 +410,7 @@ const Calendar = (props: calendarProps) => {
             };
             
             for (let i = maxEventsToShow; i < eventEls.length; i++) {
-              eventEls[i].style.display = 'none';
+              eventEls[i].setAttribute('style', 'display: none');
             }
             
             const lastEventEl = eventEls[eventEls.length - 1];
