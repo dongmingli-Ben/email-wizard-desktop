@@ -25,7 +25,8 @@ async function authorize(address: string): Promise<Credentials> {
 async function getCredentials(): Promise<any> {
   // Load client secrets from a file
   try {
-    const content = fs.readFileSync("./configs/google.json");
+    // const content = fs.readFileSync("./configs/google.json");  // in dev settings
+    const content = fs.readFileSync(process.resourcesPath + "/google.json"); // in dev settings
     return JSON.parse(content.toString());
   } catch (err) {
     console.error("Error loading client secret file:", err);
