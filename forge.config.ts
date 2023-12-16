@@ -12,11 +12,12 @@ import { rendererConfig } from "./webpack.renderer.config";
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    extraResource: ["./configs/google.json"],
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),
-    new MakerZIP({}, ["darwin"]),
+    new MakerZIP({}, ["darwin", "win32", "win64"]),
     new MakerRpm({}),
     new MakerDeb({}),
   ],
