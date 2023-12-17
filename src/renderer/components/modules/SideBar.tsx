@@ -15,6 +15,7 @@ type SideBarProps = {
   setAddAccount: (status: boolean) => void;
   setDeleteAccount: (mailbox: string) => void;
   setUpdateAccount: (mailbox: { address: string; protocol: string }) => void;
+  setAppErrMsg: (msg: string) => void;
 };
 
 const getUserInfoAPI = async (): Promise<{

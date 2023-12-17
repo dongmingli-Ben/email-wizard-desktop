@@ -31,19 +31,28 @@ export async function handleGetEvents(): Promise<StringMap[] | StringKeyMap> {
 export async function handleUpdateEvents(
   address: string,
   kwargs: StringMap = {}
-): Promise<string> {
-  let errMsg = "";
+): Promise<StringMap> {
+  let emails: [string, StringKeyMap][] = [];
   try {
     await refreshCredentialsIfExpire(address);
     let mailbox = await getMailboxInfoFromDB(address);
     console.log("retrieving emails for address: " + address);
-    let emails = await retrieveEmails(
+    emails = await retrieveEmails(
       mailbox.address,
       mailbox.protocol,
       mailbox.credentials,
       N_MAILS
     );
     console.log(`retrieved ${emails.length} emails for address: ` + address);
+  } catch (e) {
+    console.log("error in retrieving emails for address: " + address);
+    console.log(e);
+    return {
+      retrievalErrorMsg: e.message,
+      parseErrorMsg: "",
+    };
+  }
+  try {
     await Promise.all(
       emails.map(async ([id, email]) => {
         let result = query(["*"], { email_id: id }, "emails");
@@ -65,12 +74,17 @@ export async function handleUpdateEvents(
       })
     );
   } catch (e) {
-    console.log("error in handleUpdateEvents for address: " + address);
+    console.log("error in parsing for address: " + address);
     console.log(e);
-    errMsg = e.message;
+    return {
+      retrievalErrorMsg: "",
+      parseErrorMsg: e.message,
+    };
   }
-  console.log(address, errMsg);
-  return errMsg;
+  return {
+    retrievalErrorMsg: "",
+    parseErrorMsg: "",
+  };
 }
 
 export async function handleGetMailboxes(): Promise<

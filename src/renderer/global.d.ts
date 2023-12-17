@@ -6,9 +6,17 @@ type VerifyResposne = {
   credentials: { [key: string]: string };
 };
 
+type UpdateEventsResponse = {
+  retrievalErrorMsg: string;
+  parseErrorMsg: string;
+};
+
 export interface IElectronAPI {
   get_events: () => Promise<StringMap[] | StringKeyMap>;
-  update_events: (address: string, kwargs: StringMap) => Promise<string>;
+  update_events: (
+    address: string,
+    kwargs: StringMap
+  ) => Promise<UpdateEventsResponse>;
   get_mailboxes: () => Promise<StringMap[] | StringKeyMap>;
   add_mailbox: (
     type: string,
@@ -36,5 +44,9 @@ declare global {
   type VerifyResposne = {
     errMsg: string;
     credentials: StringKeyMap;
+  };
+  type UpdateEventsResponse = {
+    retrievalErrorMsg: string;
+    parseErrorMsg: string;
   };
 }

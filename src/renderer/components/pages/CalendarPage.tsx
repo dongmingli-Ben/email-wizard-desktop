@@ -22,6 +22,7 @@ const CalendarPage = () => {
   });
   const [userInfo, setUserInfo] = useState<userInfoType>();
   const [errorMailboxes, setErrorMailboxes] = useState<string[]>([]);
+  const [appErrMsg, setAppErrMsg] = useState("");
 
   const [toGetUserInfo, setToGetUserInfo] = useState(false);
   const [toGetUserEvents, setToGetUserEvents] = useState(false);
@@ -69,11 +70,14 @@ const CalendarPage = () => {
           setUpdateAccount={setUpdateAccount}
           toGetUserInfo={toGetUserInfo}
           errorMailboxes={errorMailboxes}
+          setAppErrMsg={setAppErrMsg}
         />
         <Feed
           userInfo={userInfo}
           setErrorMailboxes={setErrorMailboxes}
           toGetUserEvents={toGetUserEvents}
+          appErrMsg={appErrMsg}
+          setAppErrMsg={setAppErrMsg}
         />
       </Box>
       {addAccount ? (

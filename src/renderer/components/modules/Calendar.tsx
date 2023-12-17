@@ -19,17 +19,29 @@ import {
 
 type calendarProps = {
   userInfo: userInfoType | undefined;
-  setErrorMailboxes: (addresses: string[]) => void;
   toGetUserEvents: boolean;
+  setErrorMailboxes: (addresses: string[]) => void;
+  setAppErrMsg: (msg: string) => void;
 };
 
-const updateEvents = async (userInfo: userInfoType): Promise<string[]> => {
+const updateEvents = async (
+  userInfo: userInfoType
+): Promise<{
+  errorMailboxes: string[];
+  parseError: boolean;
+}> => {
   let promises: Promise<string | undefined>[] = [];
+  let parseErr = false;
   for (const mailbox of userInfo.useraccounts) {
     let p = updateAccountEventsAPI(mailbox.address, mailbox.protocol)
-      .then((errMsg) => {
-        console.log("error msg for mailbox:", mailbox.address, ":", errMsg);
-        return errMsg.length === 0 ? "" : mailbox.address;
+      .then((resp) => {
+        console.log("error msg for mailbox:", mailbox.address, ":", resp);
+        if (resp.parseErrorMsg !== "") {
+          parseErr = true;
+          console.log(`fail to parse events for mailbox:`, mailbox);
+          console.log("parse error msg:", resp.parseErrorMsg);
+        }
+        return resp.retrievalErrorMsg.length === 0 ? "" : mailbox.address;
       })
       .catch((error) => {
         console.log(error);
@@ -43,13 +55,13 @@ const updateEvents = async (userInfo: userInfoType): Promise<string[]> => {
     .map((addr) => addr as string)
     .filter((address) => address !== "");
   console.log("errorous mailboxes:", mailboxes);
-  return mailboxes;
+  return { errorMailboxes: mailboxes, parseError: parseErr };
 };
 
 const updateAccountEventsAPI = async (
   address: string,
   protocol: string
-): Promise<string> => {
+): Promise<UpdateEventsResponse> => {
   if (protocol === "IMAP" || protocol == "outlook" || protocol == "gmail") {
     return window.electronAPI.update_events(address, {});
   } else {
@@ -369,9 +381,21 @@ const Calendar = (props: calendarProps) => {
     console.log("updating events for:", props.userInfo);
     if (props.userInfo !== undefined) {
       updateEvents(props.userInfo)
-        .then((errMailboxes: string[]) => {
-          console.log("Mailboxes in error:", errMailboxes);
-          props.setErrorMailboxes(errMailboxes);
+        .then(({ errorMailboxes, parseError }) => {
+          console.log("Mailboxes in error:", errorMailboxes);
+          console.log("parse error:", parseError);
+          props.setErrorMailboxes(errorMailboxes);
+          if (errorMailboxes.length > 0) {
+            props.setAppErrMsg(
+              "Mailbox(es) failed to sync. Please resolve the issue(s) and try again."
+            );
+          } else if (parseError) {
+            props.setAppErrMsg(
+              "Failed to parse emails. Your API key may be expired. Please update your API key in settings."
+            );
+          } else {
+            props.setAppErrMsg("");
+          }
         })
         .then(() => {
           getEventsAPI().then((resp) => {
@@ -414,7 +438,7 @@ const Calendar = (props: calendarProps) => {
         display: "flex",
         flexDirection: "column",
         width: "100%",
-        height: "100%",
+        flex: 1,
       }}
     >
       <HeaderToolBar calendarRef={calendarRef} setQuery={setQuery} />
