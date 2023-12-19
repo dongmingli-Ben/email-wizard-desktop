@@ -12,6 +12,22 @@ export function initDatabase(redo: boolean = false): void {
   // Connect to the SQLite database
   const db = new Database("app.db");
 
+  // create settings table
+  const createSettingsTable = db.prepare(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY NOT NULL UNIQUE,
+      value TEXT NOT NULL
+    )
+  `);
+  createSettingsTable.run();
+
+  // Create default settings
+  const insertDefaultSettings = db.prepare(`
+    INSERT INTO settings (key, value)
+    VALUES (?, ?)
+  `);
+  insertDefaultSettings.run("apiKey", "");
+
   // Create Mailboxes table
   const createMailboxesTable = db.prepare(`
     CREATE TABLE IF NOT EXISTS mailboxes (

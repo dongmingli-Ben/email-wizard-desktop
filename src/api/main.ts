@@ -158,3 +158,15 @@ export async function handleUpdateMailbox(
 export function handleOpenURLInBrowser(url: string): void {
   shell.openExternal(url);
 }
+
+export async function handleUpdateSettings(req: StringMap): Promise<string> {
+  try {
+    for (let key in req) {
+      updateValue("value", req[key], { key: key }, "settings");
+    }
+    return "";
+  } catch (e) {
+    console.log(e);
+    return e.message;
+  }
+}

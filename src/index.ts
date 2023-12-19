@@ -7,6 +7,7 @@ import {
   handleRemoveMailbox,
   handleUpdateEvents,
   handleUpdateMailbox,
+  handleUpdateSettings,
 } from "./api/main";
 import { initDatabase } from "./api/data/init";
 import { handleVerifyGmail } from "./api/mailbox/gmail";
@@ -71,6 +72,9 @@ app.on("ready", () => {
   });
   ipcMain.handle("browser:open", (event, ...args) => {
     return handleOpenURLInBrowser(args[0]);
+  });
+  ipcMain.handle("settings:put", (event, ...args) => {
+    return handleUpdateSettings(args[0]);
   });
 });
 
