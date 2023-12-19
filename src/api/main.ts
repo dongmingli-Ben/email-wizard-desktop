@@ -59,6 +59,9 @@ export async function handleUpdateEvents(
         if (result.length > 0) {
           return;
         }
+        console.log(`parsing email: ${id}, address: ${address}`);
+        let events = await parseEmail(email, await getApiKey(), 5, kwargs);
+        console.log(`storing ${events.length} events for email: ${id}`);
         addRow(
           {
             email_id: id,
@@ -67,9 +70,6 @@ export async function handleUpdateEvents(
           },
           "emails"
         );
-        console.log(`parsing email: ${id}, address: ${address}`);
-        let events = await parseEmail(email, await getApiKey(), 5, kwargs);
-        console.log(`storing ${events.length} events for email: ${id}`);
         await addEventsInDB(events, id, address);
       })
     );

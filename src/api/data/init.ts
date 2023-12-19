@@ -6,7 +6,10 @@ import * as fs from "fs";
  * @param redo whether to re-initialize the database if it already exists. Defaults to false.
  */
 export function initDatabase(redo: boolean = false): void {
-  if (redo && fs.existsSync("app.db")) {
+  if (fs.existsSync("app.db")) {
+    if (!redo) {
+      return;
+    }
     fs.unlinkSync("app.db");
   }
   // Connect to the SQLite database
