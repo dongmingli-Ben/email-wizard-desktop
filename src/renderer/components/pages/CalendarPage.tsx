@@ -6,12 +6,14 @@ import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
 import DeleteAccountConfirmWindow from "../modules/DeleteAccountWindow";
 import UpdateAccountWindow from "../modules/UpdateAccountWindow";
+import SettingsWindow from "../modules/SettingsWindow";
 
 /**
  * Define the "CalendarPage" component as a function.
  */
 const CalendarPage = () => {
   const [addAccount, setAddAccount] = useState(false);
+  const [openSettings, setOpenSettings] = useState(false);
   const [deleteAccount, setDeleteAccount] = useState("");
   const [updateAccount, setUpdateAccount] = useState<{
     address: string;
@@ -68,6 +70,7 @@ const CalendarPage = () => {
           setAddAccount={setAddAccount}
           setDeleteAccount={setDeleteAccount}
           setUpdateAccount={setUpdateAccount}
+          setOpenSettings={setOpenSettings}
           toGetUserInfo={toGetUserInfo}
           errorMailboxes={errorMailboxes}
           setAppErrMsg={setAppErrMsg}
@@ -105,6 +108,14 @@ const CalendarPage = () => {
           setUpdateAccount={setUpdateAccount}
           callGetUserEvents={callGetUserEvents}
           removeMailboxFromError={removeMailboxFromError}
+        />
+      ) : (
+        <></>
+      )}
+      {openSettings ? (
+        <SettingsWindow
+          setOpenSettings={setOpenSettings}
+          callGetUserEvents={callGetUserEvents}
         />
       ) : (
         <></>
