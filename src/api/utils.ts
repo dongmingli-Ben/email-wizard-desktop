@@ -1,4 +1,5 @@
 import { getMailboxInfoFromDB } from "./data/main";
+import { query } from "./data/utils";
 import {
   refreshGmailCredentials,
   revokeGmailCredentials,
@@ -6,11 +7,8 @@ import {
 import { refreshOutlookCredentials } from "./mailbox/outlook";
 
 export async function getApiKey(): Promise<string> {
-  let key = process.env.OPENAI_API_KEY || "";
-  if (key === "") {
-    throw new Error("OPENAI_API_KEY is not set");
-  }
-  return key;
+  let data = query(["value"], { key: "apiKey" }, "settings");
+  return data[0].value;
 }
 
 export async function refreshCredentialsIfExpire(address: string) {

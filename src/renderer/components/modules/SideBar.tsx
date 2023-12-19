@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import UserAccountInfo from "./UserAccountInfo";
 import { useNavigate } from "react-router-dom";
-import { Box, Button } from "@mui/material";
+import { Box, Button, IconButton, Typography } from "@mui/material";
+import SettingsSharpIcon from "@mui/icons-material/SettingsSharp";
 
 type userInfoType = {
   useraccounts: { address: string; protocol: string }[];
@@ -15,6 +16,8 @@ type SideBarProps = {
   setAddAccount: (status: boolean) => void;
   setDeleteAccount: (mailbox: string) => void;
   setUpdateAccount: (mailbox: { address: string; protocol: string }) => void;
+  setOpenSettings: (status: boolean) => void;
+  setAppErrMsg: (msg: string) => void;
 };
 
 const getUserInfoAPI = async (): Promise<{
@@ -73,6 +76,9 @@ const SideBar = (props: SideBarProps) => {
         bgcolor: "primary.main",
         width: "20vw",
         // overflow: "scroll",
+        display: "flex",
+        flexDirection: "column",
+        pb: 2,
       }}
     >
       <UserAccountInfo
@@ -86,6 +92,58 @@ const SideBar = (props: SideBarProps) => {
         setUpdateAccount={props.setUpdateAccount}
         errorMailboxes={props.errorMailboxes}
       />
+      <SettingsTab setOpenSettings={props.setOpenSettings} />
+    </Box>
+  );
+};
+
+const SettingsTab = (props: { setOpenSettings: (status: boolean) => void }) => {
+  return (
+    <Box
+      sx={{
+        "&:hover": {
+          backgroundColor: "primary.dark",
+          opacity: [0.9, 0.8, 0.7],
+          cursor: "default",
+        },
+        width: "100%",
+        pl: "10%",
+        pr: "5%",
+        boxSizing: "border-box",
+        color: "common.white",
+      }}
+    >
+      <IconButton
+        onClick={() => {
+          props.setOpenSettings(true);
+        }}
+        sx={{
+          color: "inherit",
+          pl: 0,
+          pb: 1,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <SettingsSharpIcon color="inherit"></SettingsSharpIcon>
+          <Typography
+            color="inherit"
+            sx={{
+              width: "100%",
+              fontWeight: "bold",
+              ml: 0.5,
+            }}
+            noWrap
+            // gutterBottom
+          >
+            Settings
+          </Typography>
+        </Box>
+      </IconButton>
     </Box>
   );
 };

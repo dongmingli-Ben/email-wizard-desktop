@@ -1,5 +1,20 @@
 # SQLite3 Database Schema
 
+## Settings
+
+| attribute | type   | constraints       |
+| --------- | ------ | ----------------- |
+| key (PK)  | string | not null & unique |
+| value     | string |                   |
+
+`Settings` is a key-value table with pre-defined keys. API calls should not attempt to add any new keys or delete any existing keys.
+
+Pre-defined keys and default values:
+
+```yaml
+- apiKey: ""
+```
+
 ## Mailboxes
 
 | attribute    | type      | constraints       |

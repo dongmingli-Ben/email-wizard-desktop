@@ -6,11 +6,30 @@ import * as fs from "fs";
  * @param redo whether to re-initialize the database if it already exists. Defaults to false.
  */
 export function initDatabase(redo: boolean = false): void {
-  if (redo && fs.existsSync("app.db")) {
+  if (fs.existsSync("app.db")) {
+    if (!redo) {
+      return;
+    }
     fs.unlinkSync("app.db");
   }
   // Connect to the SQLite database
   const db = new Database("app.db");
+
+  // create settings table
+  const createSettingsTable = db.prepare(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY NOT NULL UNIQUE,
+      value TEXT NOT NULL
+    )
+  `);
+  createSettingsTable.run();
+
+  // Create default settings
+  const insertDefaultSettings = db.prepare(`
+    INSERT INTO settings (key, value)
+    VALUES (?, ?)
+  `);
+  insertDefaultSettings.run("apiKey", "");
 
   // Create Mailboxes table
   const createMailboxesTable = db.prepare(`

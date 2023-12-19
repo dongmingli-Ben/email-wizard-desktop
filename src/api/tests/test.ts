@@ -23,14 +23,14 @@ async function testMailbox(): Promise<void> {
 
 async function testEvents(): Promise<void> {
   await prepareTestDatabase();
-  let errMsg = await handleUpdateEvents("example@gmail.com");
-  if (errMsg != "") {
-    console.log(errMsg);
+  let resp = await handleUpdateEvents("example@gmail.com");
+  if (resp.retrievalErrorMsg != "" || resp.parseErrorMsg != "") {
+    console.log(resp);
   }
   console.log(await handleGetEvents());
   await handleRemoveMailbox("example@gmail.com");
   console.log(await handleGetEvents());
 }
 
-testMailbox();
-// testEvents();
+// testMailbox();
+testEvents();
