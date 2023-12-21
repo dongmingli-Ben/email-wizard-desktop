@@ -73,6 +73,10 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
   
     console.log("OpenAI key: ", openaiApiKey);
   }, []);
+
+  const isEmptyApiKey = (apiKey: string): boolean => {
+    return apiKey === "" || apiKey === "null" || apiKey === "undefined";
+  };
   
   const requirePassword = (emailType: string): boolean => {
     let needPasswordEmails = ["IMAP", "POP3"];
@@ -98,7 +102,7 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
       if (errMsg === "") {
         props.callGetUserInfo();
         props.setAddAccount(false);
-        if (openaiApiKey === "" || openaiApiKey === "null") {
+        if (isEmptyApiKey(openaiApiKey)) {
           return updateSettings({ apiKey: req.openaiApiKey });
         }
         return ""; // no need to update settings
@@ -252,7 +256,7 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
               ) : (
                 <></>
               )}
-              {openaiApiKey === "" || openaiApiKey === "null" ? (
+              {isEmptyApiKey(openaiApiKey) ? (
                 <TextField
                   margin="normal"
                   required

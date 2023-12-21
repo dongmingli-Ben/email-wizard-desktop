@@ -70,6 +70,10 @@ const SettingsWindow = (props: {
     });
   }, []);
 
+  const isEmptyApiKey = (apiKey: string): boolean => {
+    return apiKey === "" || apiKey === "null" || apiKey === "undefined";
+  };
+
   const handleSubmit = (event: any) => {
     setLoading(true);
     event.preventDefault();
@@ -134,7 +138,7 @@ const SettingsWindow = (props: {
             <Typography component="h1" variant="h5">
               Settings
             </Typography>
-            {openaiApiKey === "" || openaiApiKey === "null" || isSetting ? (
+            {isEmptyApiKey(openaiApiKey) || isSetting ? (
               <Box
                 component="form"
                 onSubmit={handleSubmit}
@@ -186,7 +190,7 @@ const SettingsWindow = (props: {
                     color="secondary"
                     sx={{ m: 1 }}
                     onClick={() => {
-                      if (openaiApiKey === "" || openaiApiKey === "null") {
+                      if (isEmptyApiKey(openaiApiKey)) {
                         props.setOpenSettings(false);
                       }
                       else {
