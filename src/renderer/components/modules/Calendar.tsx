@@ -17,11 +17,6 @@ import {
   updateLocalSearchIndex,
 } from "../../utilities/searchUtility";
 
-import { styled } from "@mui/material/styles";
-import { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import ReactDOM from "react-dom";
-
-
 type calendarProps = {
   userInfo: userInfoType | undefined;
   toGetUserEvents: boolean;
@@ -189,25 +184,6 @@ const EventPopupDisplay = ({ event }: { event: { [key: string]: string } }) => {
   );
 };
 
-const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: theme.palette.common.white,
-    color: 'rgba(0, 0, 0, 0.87)',
-    boxShadow: theme.shadows[1],
-    fontSize: "inherit",
-  },
-}));
-
-const NMoreEvent = ({Nmore} : {Nmore: number}) => {
-  return (
-    <LightTooltip title={<div className="cp-tooltip-text"></div>} placement="right">
-      <Button>{Nmore} more</Button>
-    </LightTooltip>
-  )
-}
-
 const CustomEvent = ({ event }: { event: any }) => {
   const e = event.extendedProps.event;
   // console.log(e);
@@ -370,8 +346,6 @@ const HeaderToolBar = ({
   );
 };
 
-// Import other necessary dependencies at the beginning of your file
-
 const Calendar = (props: calendarProps) => {
   const [eventStore, setEventStore] = useState<{ [key: string]: string }[]>([]);
   const [events, setEvents] = useState<{ [key: string]: any }[]>([]);
@@ -402,62 +376,6 @@ const Calendar = (props: calendarProps) => {
     console.log(events);
     return events;
   };
-
-  const handleEventsSet = () => {
-    const calendarApi = calendarRef.current?.getApi();
-  
-    if (calendarApi) {
-      const dayEventContainers = document.querySelectorAll('.fc-daygrid-day-events');
-  
-      dayEventContainers.forEach((container) => {
-        // Remove any existing "N more" elements
-        const moreEvents = container.querySelectorAll('.more-events');
-  
-        if (moreEvents.length > 0) {
-          moreEvents.forEach((moreEvent) => {
-            moreEvent.remove();
-          });
-        }
-  
-        const eventEls = container.querySelectorAll('.fc-daygrid-event-harness');
-  
-        if (eventEls.length > 0) {
-          const maxEventsToShow = 1; // Adjust this number as needed
-          const totalEvents = eventEls.length;
-  
-          if (totalEvents > maxEventsToShow) {
-            const hiddenEvents = totalEvents - maxEventsToShow;
-            const moreEvent = document.createElement('div');
-            moreEvent.className = 'more-events';
-            for (let i = maxEventsToShow; i < eventEls.length; i++) {
-              eventEls[i].setAttribute('style', 'display: none');
-            }
-
-            ReactDOM.render(<NMoreEvent Nmore={hiddenEvents}/>, moreEvent);
-
-            // dynamically set the tooltip text using click event listener
-            moreEvent.addEventListener('click', () => {
-              const tooltipText = document.getElementsByClassName('cp-tooltip-text')[0];
-              tooltipText.innerHTML = '';
-              const container_clone = document.createElement('div');
-              container_clone.innerHTML = container.outerHTML;
-              const eventEls_clone = container_clone.querySelectorAll('.fc-daygrid-event-harness');
-              eventEls_clone.forEach((eventEl) => {
-                eventEl.setAttribute('style', 'display: block');
-              });
-              const moreEvent_clone = container_clone.querySelector('.more-events');
-              moreEvent_clone.remove();
-              tooltipText.appendChild(container_clone);
-            }
-            );
-
-            container.appendChild(moreEvent);
-          }
-        }
-      });
-    }
-  };
-  
 
   useEffect(() => {
     console.log("updating events for:", props.userInfo);
@@ -534,7 +452,6 @@ const Calendar = (props: calendarProps) => {
         eventBackgroundColor="white"
         eventContent={(arg) => <CustomEvent event={arg.event} />}
         height={"100%"}
-        eventsSet={handleEventsSet}
       />
     </Box>
   );

@@ -37,8 +37,6 @@ const App = ({ pca }: AppProps) => {
         <div className="app-container body">
           <Routes>
             <Route path="/" element={<CalendarPage />} />
-            {/* <Route path="/" element={<IntroPage />} /> */}
-            {/* <Route path="*" element={<NotFound />} /> */}
           </Routes>
         </div>
       </ThemeProvider>
