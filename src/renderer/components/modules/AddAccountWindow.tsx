@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { userInfoType } from "./SideBar";
 import { verifyEmailAccount } from "../../utilities/verifyEmail";
 import {
@@ -17,6 +17,9 @@ import {
 } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import LoadingButton from "@mui/lab/LoadingButton";
+import { getApiKey } from "../../../api/utils";
+import { updateSettings } from "./SettingsWindow";
+
 
 type AddAccountWindowProps = {
   userInfo: userInfoType | undefined;
@@ -76,24 +79,39 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
     };
     console.log(req);
     // todo: add openai api key to local storage
-    if (req.openai_api_key !== undefined) {
-      sessionStorage.setItem("openai_api_key", req.openai_api_key);
-    }
-    newEmailAccount(req)
-      .then((errMsg) => {
-        setLoading(false);
-        if (errMsg === "") {
-          props.callGetUserInfo();
-          props.setAddAccount(false);
-        } else {
-          console.log("error when adding mailbox:", errMsg);
-          setErrorMsg(errMsg);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+    updateSettings({ apiKey: req.openai_api_key })
+    .then((errMsg) => {
+      setLoading(false);
+
+      if (errMsg === "") {
+        // If updateSettings was successful, proceed to newEmailAccount
+        return newEmailAccount(req);
+      } else {
+        console.log("Error when updating settings:", errMsg);
+        setErrorMsg(errMsg);
+        // Return a rejected promise to skip the next .then() block
+        return Promise.reject(errMsg);
+      }
+    })
+    .then((errMsg) => {
+      // This block will only execute if newEmailAccount is successful
+      setLoading(false);
+
+      if (errMsg === "") {
+        // Both updateSettings and newEmailAccount were successful
+        props.callGetUserInfo();
+        props.setAddAccount(false);
+      } else {
+        console.log("Error when adding mailbox:", errMsg);
+        setErrorMsg(errMsg);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }
+    
+
 
   return (
     <Box
@@ -221,21 +239,16 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
               ) : (
                 <></>
               )}
-              {sessionStorage.getItem("openai_api_key") === null ? (
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="openai_api_key"
-                  label="OpenAI API Key"
-                  type="text"
-                  id="openai_api_key"
-                  autoComplete="xxx-xxx-xxx"
-                />
-              ) : (
-                <></>
-              )}
-
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="openai_api_key"
+                label="OpenAI API Key"
+                type="text"
+                id="openai_api_key"
+                autoComplete="xxx-xxx-xxx"
+              />
               <Box
                 sx={{
                   display: "flex",

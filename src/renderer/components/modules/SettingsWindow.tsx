@@ -159,3 +159,4 @@ const SettingsWindow = (props: {
 };
 
 export default SettingsWindow;
+export { updateSettings };
