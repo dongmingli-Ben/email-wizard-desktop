@@ -56,7 +56,7 @@ const SettingsWindow = (props: {
 }) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [openai_api_key, setApiKey] = useState("");
+  const [openaiApiKey, setApiKey] = useState("");
   const [isSetting, setIsSetting] = useState(false);
   
   useEffect(() => {
@@ -134,7 +134,7 @@ const SettingsWindow = (props: {
             <Typography component="h1" variant="h5">
               Settings
             </Typography>
-            {openai_api_key === "" || openai_api_key === "null" || isSetting ? (
+            {openaiApiKey === "" || openaiApiKey === "null" || isSetting ? (
               <Box
                 component="form"
                 onSubmit={handleSubmit}
@@ -186,7 +186,7 @@ const SettingsWindow = (props: {
                     color="secondary"
                     sx={{ m: 1 }}
                     onClick={() => {
-                      if (openai_api_key === "") {
+                      if (openaiApiKey === "" || openaiApiKey === "null") {
                         props.setOpenSettings(false);
                       }
                       else {
@@ -216,7 +216,7 @@ const SettingsWindow = (props: {
                   }}
                 >
                   OpenAI API Key: <br />
-                  {openai_api_key}
+                  {openaiApiKey}
                 </Typography>
                 <Box
                   sx={{
@@ -244,7 +244,7 @@ const SettingsWindow = (props: {
                       props.setOpenSettings(false);
                     }}
                   >
-                    Cancel
+                    Quit
                   </Button>
                 </Box>
               </Box>

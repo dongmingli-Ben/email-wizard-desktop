@@ -4,7 +4,7 @@ import { parseEmail } from "./main";
 const PATH = "configs/test_email.json";
 
 async function test() {
-  let apiKey = process.env.OPENAI_API_KEY || "";
+  let apiKey = process.env.openaiApiKey || "";
   let email = JSON.parse(fs.readFileSync(PATH).toString());
   let events = await parseEmail(email, apiKey, 5, {});
   console.log(events);
