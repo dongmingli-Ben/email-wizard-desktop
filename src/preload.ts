@@ -23,4 +23,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("verify:imap", address, credentials),
   browser_open: (url: string) => ipcRenderer.invoke("browser:open", url),
   update_settings: (req: StringMap) => ipcRenderer.invoke("settings:put", req),
+  get_settings: () => ipcRenderer.invoke("settings:get"),
 });

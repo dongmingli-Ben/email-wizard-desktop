@@ -18,7 +18,7 @@ import {
 import EmailIcon from "@mui/icons-material/Email";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { getApiKey } from "../../../api/utils";
-import { updateSettings } from "./SettingsWindow";
+import { updateSettings, getSettings } from "./SettingsWindow";
 
 
 type AddAccountWindowProps = {
@@ -60,6 +60,21 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const [openai_api_key, setApiKey] = useState("");
+
+  useEffect(() => {
+    getSettings()
+    .then(({ settings, errMsg }) => {
+      console.log(settings);
+      setApiKey(settings.apiKey);
+    })
+    .catch((e) => {
+      console.log("fail to get settings:", e);
+    });
+  
+    console.log("OpenAI key: ", openai_api_key);
+  }, []);
+  
   const requirePassword = (emailType: string): boolean => {
     let needPasswordEmails = ["IMAP", "POP3"];
     return needPasswordEmails.includes(emailType);
@@ -110,8 +125,6 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
       console.log(err);
     });
   }
-    
-
 
   return (
     <Box
@@ -239,16 +252,21 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
               ) : (
                 <></>
               )}
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="openai_api_key"
-                label="OpenAI API Key"
-                type="text"
-                id="openai_api_key"
-                autoComplete="xxx-xxx-xxx"
-              />
+              {openai_api_key === "" || openai_api_key === "null" ? (
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="openai_api_key"
+                  label="OpenAI API Key"
+                  type="text"
+                  id="openai_api_key"
+                  autoComplete="xxx-xxx-xxx"
+                />
+              ) : (
+                <></>
+              )}
+
               <Box
                 sx={{
                   display: "flex",

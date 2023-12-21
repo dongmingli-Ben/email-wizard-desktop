@@ -8,6 +8,7 @@ import {
   handleUpdateEvents,
   handleUpdateMailbox,
   handleUpdateSettings,
+  handleGetSettings,
 } from "./api/main";
 import { initDatabase } from "./api/data/init";
 import { handleVerifyGmail } from "./api/mailbox/gmail";
@@ -78,6 +79,7 @@ app.on("ready", () => {
   ipcMain.handle("settings:put", (event, ...args) => {
     return handleUpdateSettings(args[0]);
   });
+  ipcMain.handle("settings:get", handleGetSettings);
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
