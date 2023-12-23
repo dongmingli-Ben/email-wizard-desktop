@@ -1,5 +1,6 @@
 import * as fs from "fs";
-import { retrieveEmails } from "../main";
+import { countNewMailSinceTime, retrieveEmails } from "../main";
+import { shiftTimeBySeconds } from "../utils";
 
 const TOKEN_PATH = "token.json";
 
@@ -17,4 +18,15 @@ async function test(): Promise<void> {
   }
 }
 
-test();
+async function testCountTime() {
+  const token = fs.readFileSync(TOKEN_PATH);
+  const n = await countNewMailSinceTime(
+    shiftTimeBySeconds(new Date(), 3600 * 24 * 7),
+    "doesnotmatter@gmail.com",
+    "gmail",
+    JSON.parse(token.toString())
+  );
+  console.log(n);
+}
+
+testCountTime();

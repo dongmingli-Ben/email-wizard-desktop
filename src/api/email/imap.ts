@@ -1,4 +1,5 @@
 import Imap from "imap";
+import { shiftTimeBySeconds } from "./utils";
 const simpleParser = require("mailparser").simpleParser;
 type StringKeyMap = { [key: string]: any };
 type StringMap = { [key: string]: string };
@@ -93,3 +94,62 @@ export async function retrieveEmailIMAP(
   }
   return emails;
 }
+
+export async function countNewMailSinceMailIMAP(
+  address: string,
+  credentials: StringMap,
+  mail: EmailInfo
+): Promise<number> {
+  // return an over-estimate (safely)
+  return countNewMailSinceTimeIMAP(
+    address,
+    credentials,
+    // set query date to one day ago to guarentee that all emails
+    // received after the date are read. This shift is to accomodate
+    // the timezone difference between user's local time and IMAP
+    // server time.
+    shiftTimeBySeconds(mail.timestamp, 3600 * 24)
+  );
+}
+
+/* Note: node-imap library only support reading SINCE a date (excluding time). Also
+ it appears that the ts is first converted to a date in local time. Then the IMAP server
+ may interprets the date in the server's local time. This can cause confusion if the locale
+ of user and the server is different */
+export async function countNewMailSinceTimeIMAP(
+  address: string,
+  credentials: StringMap,
+  ts: Date
+): Promise<number> {
+  const imap = createConnection(address, credentials);
+
+  function openInbox(cb: (error: Error | null, mailbox?: any) => void) {
+    imap.openBox("INBOX", true, cb);
+  }
+
+  let n: number = null;
+
+  imap.once("ready", () => {
+    console.log("imap ready");
+    openInbox((error, box) => {
+      if (error) throw error;
+      imap.search(["ALL", ["SINCE", ts]], (err: any, results: any) => {
+        if (err) throw err;
+        n = results.length;
+      });
+    });
+  });
+
+  imap.connect();
+
+  while (n === null) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  imap.end();
+  return n;
+}
+
+type EmailInfo = {
+  emailId: string;
+  timestamp: Date;
+};

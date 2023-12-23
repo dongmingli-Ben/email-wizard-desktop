@@ -1,5 +1,6 @@
-import { retrieveEmailOutlook } from "../outlook";
+import { countNewMailSinceTimeOutlook, retrieveEmailOutlook } from "../outlook";
 import * as fs from "fs";
+import { shiftTimeBySeconds } from "../utils";
 
 const TOKEN_PATH = "configs/test_outlook.txt";
 
@@ -16,4 +17,15 @@ export async function testOutlook() {
   }
 }
 
+async function testOutlookCountTime() {
+  const token = fs.readFileSync(TOKEN_PATH);
+  const n = await countNewMailSinceTimeOutlook(
+    "doesnotmatter@outlook.com",
+    { access_token: token.toString() },
+    shiftTimeBySeconds(new Date("Dec 10, 2023"), 60)
+  );
+  console.log(n);
+}
+
 // testOutlook();
+testOutlookCountTime();
