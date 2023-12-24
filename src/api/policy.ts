@@ -68,12 +68,12 @@ async function getMailsSincePolicy(
 
 export function getLastEmailInfoByAddress(address: string): EmailInfo | null {
   let data = query(["last_email_info"], { address: address }, "mailboxes");
-  // console.log("getLastEmailInfoByAddress", data);
   if (data[0].last_email_info === null) {
     return null;
   }
   let lastEmailInfo = JSON.parse(data[0].last_email_info);
   lastEmailInfo.timestamp = new Date(lastEmailInfo.timestamp);
+  console.log("getLastEmailInfoByAddress", lastEmailInfo);
   return lastEmailInfo;
 }
 

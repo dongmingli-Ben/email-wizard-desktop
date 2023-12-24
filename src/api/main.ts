@@ -38,7 +38,7 @@ export async function handleUpdateEvents(
     let mailbox = await getMailboxInfoFromDB(address);
     let policy = JSON.parse(getSettings(["emailReadPolicy"]).emailReadPolicy);
     let nMails = await getNMailsByPolicy(policy, mailbox);
-    console.log("retrieving emails for address: " + address);
+    console.log(`retrieving ${nMails} emails for address: ` + address);
     emails = await retrieveEmails(
       mailbox.address,
       mailbox.protocol,
@@ -85,12 +85,15 @@ export async function handleUpdateEvents(
         }
       })
     );
-    updateValue(
-      "last_email_info",
-      JSON.stringify(lastEmailInfo),
-      { address: address },
-      "mailboxes"
-    );
+    console.log("handleUpdateEvents", lastEmailInfo);
+    if (lastEmailInfo !== null) {
+      updateValue(
+        "last_email_info",
+        JSON.stringify(lastEmailInfo),
+        { address: address },
+        "mailboxes"
+      );
+    }
   } catch (e) {
     console.log("error in parsing for address: " + address);
     console.log(e);
