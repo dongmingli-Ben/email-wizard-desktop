@@ -108,8 +108,8 @@ export async function countNewMailSinceMailGmail(
   return countNewMailSinceTimeGmail(
     address,
     credentials,
-    // shift to add redundancy
-    shiftTimeBySeconds(mail.timestamp, 60)
+    // no need to shift for redundancy. gmail api already has some redundancy
+    mail.timestamp
   );
 }
 

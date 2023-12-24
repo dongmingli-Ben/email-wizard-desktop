@@ -5,14 +5,14 @@ import { retrieveEmails } from "./email/main";
 import { parseEmail } from "./parse/main";
 import {
   getApiKey,
+  getSettings,
   refreshCredentialsIfExpire,
   revokeMailboxCredentials,
 } from "./utils";
+import { getNMailsByPolicy } from "./policy";
 
 type StringMap = { [key: string]: string };
 type StringKeyMap = { [key: string]: any };
-
-const N_MAILS = 25;
 
 export async function handleGetEvents(): Promise<StringMap[] | StringKeyMap> {
   try {
@@ -36,12 +36,14 @@ export async function handleUpdateEvents(
   try {
     await refreshCredentialsIfExpire(address);
     let mailbox = await getMailboxInfoFromDB(address);
+    let policy = JSON.parse(getSettings(["emailReadPolicy"]).emailReadPolicy);
+    let nMails = await getNMailsByPolicy(policy, mailbox);
     console.log("retrieving emails for address: " + address);
     emails = await retrieveEmails(
       mailbox.address,
       mailbox.protocol,
       mailbox.credentials,
-      N_MAILS
+      nMails
     );
     console.log(`retrieved ${emails.length} emails for address: ` + address);
   } catch (e) {
@@ -53,6 +55,7 @@ export async function handleUpdateEvents(
     };
   }
   try {
+    let lastEmailInfo: EmailInfo = null;
     await Promise.all(
       emails.map(async ([id, email]) => {
         let result = query(["*"], { email_id: id }, "emails");
@@ -71,7 +74,22 @@ export async function handleUpdateEvents(
           "emails"
         );
         await addEventsInDB(events, id, address);
+        if (
+          lastEmailInfo === null ||
+          lastEmailInfo.timestamp < new Date(email.date)
+        ) {
+          lastEmailInfo = {
+            emailId: id,
+            timestamp: new Date(email.date),
+          };
+        }
       })
+    );
+    updateValue(
+      "last_email_info",
+      JSON.stringify(lastEmailInfo),
+      { address: address },
+      "mailboxes"
     );
   } catch (e) {
     console.log("error in parsing for address: " + address);
@@ -98,6 +116,7 @@ export async function handleGetMailboxes(): Promise<
         username: row.address,
         protocol: row.protocol,
         credentials: JSON.parse(row.credentials),
+        lastEmailInfo: JSON.parse(row.last_email_info),
       });
     }
     return mailboxes;
@@ -170,3 +189,8 @@ export async function handleUpdateSettings(req: StringMap): Promise<string> {
     return e.message;
   }
 }
+
+type EmailInfo = {
+  emailId: string;
+  timestamp: Date;
+};

@@ -50,4 +50,15 @@ declare global {
     retrievalErrorMsg: string;
     parseErrorMsg: string;
   };
+
+  // backend types
+  type MailboxInfo = {
+    address: string;
+    protocol: string;
+    credentials: StringMap;
+  };
+  type EmailInfo = {
+    emailId: string;
+    timestamp: Date;
+  };
 }
