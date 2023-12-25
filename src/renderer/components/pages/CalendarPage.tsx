@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Feed from "../modules/Feed";
 import SideBar, { userInfoType } from "../modules/SideBar";
 import AddAccountWindow from "../modules/AddAccountWindow";
-import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
 import DeleteAccountConfirmWindow from "../modules/DeleteAccountWindow";
 import UpdateAccountWindow from "../modules/UpdateAccountWindow";
