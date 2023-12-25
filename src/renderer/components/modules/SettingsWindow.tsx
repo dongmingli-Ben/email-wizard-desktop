@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Avatar,
@@ -34,23 +34,37 @@ const SettingsWindow = (props: {
   const [errorMsg, setErrorMsg] = useState("");
   const [policy, setPolicy] = useState("");
   const [firstParsePolicy, setFirstParsePolicy] = useState("");
+  const [ready, setReady] = useState(false);
+  const [paramN, setParamN] = useState("");
+  const [apiKey, setApiKey] = useState("");
 
   const handleSubmit = (event: any) => {
     setLoading(true);
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     let newPolicy: Object = null;
+    let n: number = 0;
+    try {
+      n = parseInt(paramN);
+      if (isNaN(n) || n === null || n === undefined) {
+        throw new Error("N must be an integer.");
+      }
+    } catch (e) {
+      setErrorMsg("N must be an integer.");
+      setLoading(false);
+      return;
+    }
     if (policy === "last-n-mails" || policy === "last-n-days") {
       newPolicy = {
         policy: policy,
-        n: Number(data.get("n") as string),
+        n: n,
       };
     } else {
       newPolicy = {
         policy: policy,
         first_parse_policy: {
           policy: firstParsePolicy,
-          n: Number(data.get("n") as string),
+          n: n,
         },
       };
     }
@@ -74,6 +88,21 @@ const SettingsWindow = (props: {
         console.log(err);
       });
   };
+
+  useEffect(() => {
+    window.electronAPI.get_settings().then((settings) => {
+      console.log(settings);
+      setApiKey(settings.apiKey);
+      setPolicy(settings.emailReadPolicy.policy);
+      if (settings.emailReadPolicy.policy === "all-since-last-parse") {
+        setFirstParsePolicy(settings.emailReadPolicy.first_parse_policy.policy);
+        setParamN(settings.emailReadPolicy.first_parse_policy.n);
+      } else {
+        setParamN(settings.emailReadPolicy.n);
+      }
+      setReady(true);
+    });
+  }, []);
 
   return (
     <Box
@@ -140,7 +169,11 @@ const SettingsWindow = (props: {
                 id="apiKey"
                 label="OpenAI API Key"
                 name="apiKey"
-                autoComplete="john@example.com"
+                value={apiKey}
+                onChange={(e) => {
+                  setApiKey(e.target.value);
+                }}
+                inputProps={{ readOnly: !ready }}
                 autoFocus
               />
               <FormControl fullWidth margin="normal">
@@ -167,6 +200,11 @@ const SettingsWindow = (props: {
                   label="N"
                   name="n"
                   autoComplete="7"
+                  value={paramN}
+                  onChange={(e) => {
+                    setParamN(e.target.value);
+                  }}
+                  inputProps={{ readOnly: !ready }}
                   autoFocus
                 />
               ) : (
@@ -198,6 +236,11 @@ const SettingsWindow = (props: {
                     label="N"
                     name="n"
                     autoComplete="7"
+                    value={paramN}
+                    onChange={(e) => {
+                      setParamN(e.target.value);
+                    }}
+                    inputProps={{ readOnly: !ready }}
                     autoFocus
                   />
                 </>

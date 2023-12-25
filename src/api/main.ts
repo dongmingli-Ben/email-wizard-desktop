@@ -193,6 +193,20 @@ export async function handleUpdateSettings(req: StringMap): Promise<string> {
   }
 }
 
+export async function handleGetSettings(): Promise<StringKeyMap> {
+  try {
+    let result = getSettings();
+    let settings = {
+      ...result,
+      emailReadPolicy: JSON.parse(result.emailReadPolicy),
+    };
+    return settings;
+  } catch (e) {
+    console.log(e);
+    return { errMsg: e.message };
+  }
+}
+
 type EmailInfo = {
   emailId: string;
   timestamp: Date;

@@ -3,6 +3,7 @@ import {
   handleAddMailbox,
   handleGetEvents,
   handleGetMailboxes,
+  handleGetSettings,
   handleOpenURLInBrowser,
   handleRemoveMailbox,
   handleUpdateEvents,
@@ -76,6 +77,7 @@ app.on("ready", () => {
   ipcMain.handle("settings:put", (event, ...args) => {
     return handleUpdateSettings(args[0]);
   });
+  ipcMain.handle("settings:get", handleGetSettings);
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
