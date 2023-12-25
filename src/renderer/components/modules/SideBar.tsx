@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import UserAccountInfo from "./UserAccountInfo";
-import { useNavigate } from "react-router-dom";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import SettingsSharpIcon from "@mui/icons-material/SettingsSharp";
 
@@ -10,9 +9,7 @@ type userInfoType = {
 
 type SideBarProps = {
   userInfo: userInfoType | undefined;
-  toGetUserInfo: boolean;
   errorMailboxes: string[];
-  setUserInfo: (info: userInfoType) => void;
   setAddAccount: (status: boolean) => void;
   setDeleteAccount: (mailbox: string) => void;
   setUpdateAccount: (mailbox: { address: string; protocol: string }) => void;
@@ -51,25 +48,6 @@ const getUserInfoAPI = async (): Promise<{
 };
 
 const SideBar = (props: SideBarProps) => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    getUserInfoAPI()
-      .then(({ userAccounts, errMsg }) => {
-        console.log(userAccounts);
-        props.setUserInfo({
-          useraccounts: userAccounts,
-        });
-        // todo: navigate to start page if no user accounts
-        // if (errMsg === "" && userAccounts.length === 0) {
-        //   navigate("/");
-        // }
-      })
-      .catch((e) => {
-        console.log("fail to fetch user profile:", e);
-      });
-  }, [props.toGetUserInfo]);
-
   return (
     <Box
       sx={{

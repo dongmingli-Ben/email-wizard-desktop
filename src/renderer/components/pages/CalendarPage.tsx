@@ -52,11 +52,11 @@ const CalendarPage = () => {
     }
     if (userInfo.useraccounts.length === 0) {
       console.log("userInfo.useraccounts is empty");
-      console.log(userInfo)
+      console.log(userInfo);
       return true;
     }
     return false;
-  }
+  };
 
   useEffect(() => {
     getUserInfoAPI()
@@ -74,12 +74,12 @@ const CalendarPage = () => {
   if (isNoAccount(userInfo)) {
     return (
       <AddAccountWindow
-          userInfo={userInfo}
-          setUserInfo={setUserInfo}
-          setAddAccount={setAddAccount}
-          callGetUserInfo={callGetUserInfo}
-        />
-    )
+        userInfo={userInfo}
+        setUserInfo={setUserInfo}
+        setAddAccount={setAddAccount}
+        callGetUserInfo={callGetUserInfo}
+      />
+    );
   }
 
   return (
@@ -106,12 +106,10 @@ const CalendarPage = () => {
       >
         <SideBar
           userInfo={userInfo}
-          setUserInfo={setUserInfo}
           setAddAccount={setAddAccount}
           setDeleteAccount={setDeleteAccount}
           setUpdateAccount={setUpdateAccount}
           setOpenSettings={setOpenSettings}
-          toGetUserInfo={toGetUserInfo}
           errorMailboxes={errorMailboxes}
           setAppErrMsg={setAppErrMsg}
         />

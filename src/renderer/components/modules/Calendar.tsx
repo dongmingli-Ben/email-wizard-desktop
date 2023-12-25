@@ -272,7 +272,7 @@ const HeaderToolBar = ({
       "Mar",
       "Apr",
       "May",
-      "Jun", 
+      "Jun",
       "Jul",
       "Aug",
       "Sep",
