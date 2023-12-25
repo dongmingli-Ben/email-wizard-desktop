@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { userInfoType } from "./SideBar";
-import { Box, Button, Link, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Link, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import CelebrationIcon from "@mui/icons-material/Celebration";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
@@ -87,6 +89,20 @@ const getEventsAPI = async (): Promise<StringKeyMap[]> => {
       return [];
     });
 };
+
+// the below code is from MUI docs:
+// https://mui.com/material-ui/react-tooltip/#system-CustomizedTooltips.tsx
+const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.common.white,
+    color: "rgba(0, 0, 0, 0.7)",
+    // maxWidth: 220,
+    // fontSize: theme.typography.pxToRem(12),
+    border: "1px solid #dadde9",
+  },
+}));
 
 const EventPopupDisplay = ({ event }: { event: { [key: string]: string } }) => {
   const getLocalTime = (time: string) => {
@@ -184,12 +200,23 @@ const EventPopupDisplay = ({ event }: { event: { [key: string]: string } }) => {
   );
 };
 
-const CustomEvent = ({ event }: { event: any }) => {
-  const e = event.extendedProps.event;
-  // console.log(e);
+const NMoreEventPopupDisplay = ({ events }: { events: StringMap[] }) => {
   return (
-    <Tooltip
-      title={<EventPopupDisplay event={e}></EventPopupDisplay>}
+    // todo: current font size is hard-coded. It would be better to inherit it
+    // from some global values or parent values. But directly setting fontSize: "inherit"
+    // does not work.
+    <Box sx={{ fontSize: 15 }}>
+      {events.map((e, idx) => (
+        <CustomNormalEvent event={e} key={idx} />
+      ))}
+    </Box>
+  );
+};
+
+const CustomNormalEvent = ({ event }: { event: StringMap }) => {
+  return (
+    <HtmlTooltip
+      title={<EventPopupDisplay event={event}></EventPopupDisplay>}
       placement="right"
       sx={{
         width: "inherit",
@@ -216,11 +243,65 @@ const CustomEvent = ({ event }: { event: any }) => {
             width: "100%",
           }}
         >
-          {e.summary}
+          {event.summary}
         </Typography>
       </Box>
-    </Tooltip>
+    </HtmlTooltip>
   );
+};
+
+const CustomNMoreEvent = ({ events }: { events: StringMap[] }) => {
+  console.log(events);
+  return (
+    <HtmlTooltip
+      title={<NMoreEventPopupDisplay events={events}></NMoreEventPopupDisplay>}
+      placement="right"
+      sx={{
+        width: "inherit",
+        maxWidth: "30%",
+      }}
+    >
+      <Box
+        sx={{
+          fontSize: "inherit",
+          color: "primary.main",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          boxSizing: "border-box",
+          "&:hover": {
+            cursor: "default",
+          },
+        }}
+      >
+        <Typography
+          fontSize="inherit"
+          fontWeight="bold"
+          noWrap
+          sx={
+            {
+              // width: "100%",
+            }
+          }
+        >
+          {`${events.length} MORE`}
+        </Typography>
+      </Box>
+    </HtmlTooltip>
+  );
+};
+
+const CustomEvent = ({ event }: { event: any }) => {
+  // console.log(event.title, event);
+  if (
+    event.extendedProps.hasOwnProperty("isNmoreEvent") &&
+    event.extendedProps.isNmoreEvent
+  ) {
+    // console.log(event.extendedProps.events);
+    return <CustomNMoreEvent events={event.extendedProps.events} />;
+  }
+  return <CustomNormalEvent event={event.extendedProps.event} />;
 };
 
 function SearchBar({ setQuery }: { setQuery: (query: string) => void }) {
@@ -447,13 +528,91 @@ const Calendar = (props: calendarProps) => {
         plugins={[dayGridPlugin]}
         initialView="dayGridMonth"
         weekends={true}
-        events={events}
+        events={prepareNmoreEvents(events, 4)} // maximum events to display in one cell (including n-more)
         headerToolbar={false}
         eventBackgroundColor="white"
         eventContent={(arg) => <CustomEvent event={arg.event} />}
+        nextDayThreshold={"01:00:00"} // setting this so that an event ending at 23:59:59 does not occupy the second day
+        // the n-more event will span 23:59:59 - 23:59:59 so that it will appears at the end of the day
+        // one potential problem is that if there is another event that starts at 23:59:59, then the n-more event
+        // may not appear at the end of the day
       />
     </Box>
   );
 };
+
+/**
+ *
+ * @param events The prepared list of events from `prepareEventsForCalendar`.
+ *  The element in the list has the following structure:
+ *  - title: string,
+ *  - start: string, // 2024-01-22T00:00:00
+ *  - end: string,
+ *  - extendedProps:
+ *  -   event:
+ *  -     summary: string,
+ *  -     event_type: string,
+ *  -     [start_time]: string, // 2024-01-22T00:00:00 US/Pacific
+ *  -     [end_time]: string,
+ *  -     [venue]: string
+ * @param n The maximum number of events to display in a day cell
+ * @returns the ready list of events to be fed to the fullcalendar (with custom n-more
+ *  events when there are more than `n` events in the same day).
+ */
+function prepareNmoreEvents(events: StringKeyMap[], n: number): StringKeyMap[] {
+  let eventsMap: StringKeyMap = {};
+
+  const getDateString = (timestr: string) => {
+    return timestr.split("T")[0];
+  };
+
+  events.forEach((event) => {
+    let key = getDateString(event.start);
+    if (!(key in eventsMap)) {
+      eventsMap[key] = [];
+    }
+    eventsMap[key].push(event);
+  });
+  // console.log(eventsMap);
+  let readyEvents: StringKeyMap[] = [];
+  for (let [date, evts] of Object.entries(eventsMap)) {
+    if (evts.length <= n) {
+      readyEvents = [...readyEvents, ...evts];
+      continue;
+    }
+    let multidayEvents: StringKeyMap[] = [];
+    let otherEvents: StringKeyMap[] = [];
+    let nmoreEvents: StringKeyMap[] = [];
+    for (let evt of evts) {
+      let endDate = getDateString(evt.end);
+      if (date !== endDate) {
+        multidayEvents.push(evt);
+      } else {
+        otherEvents.push(evt);
+      }
+    }
+    if (multidayEvents.length >= n - 1) {
+      readyEvents = readyEvents.concat(multidayEvents.slice(0, n - 1));
+      nmoreEvents = [...multidayEvents.slice(n - 1), ...otherEvents];
+    } else {
+      readyEvents = readyEvents.concat(multidayEvents);
+      readyEvents = readyEvents.concat(
+        otherEvents.slice(0, n - 1 - multidayEvents.length)
+      );
+      nmoreEvents = otherEvents.slice(n - 1 - multidayEvents.length);
+    }
+    readyEvents.push({
+      title: `${nmoreEvents.length} more`,
+      start: `${date}T23:59:59`,
+      end: `${date}T23:59:59`,
+      extendedProps: {
+        isNmoreEvent: true,
+        events: nmoreEvents.map((e) => e.extendedProps.event),
+      },
+    });
+  }
+  // console.log(readyEvents);
+  return readyEvents;
+}
 
 export default Calendar;
