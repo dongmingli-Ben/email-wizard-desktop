@@ -75,6 +75,7 @@ const CalendarPage = () => {
     return (
       <AddAccountWindow
         userInfo={userInfo}
+        firstTime={true}
         setUserInfo={setUserInfo}
         setAddAccount={setAddAccount}
         callGetUserInfo={callGetUserInfo}
@@ -124,6 +125,7 @@ const CalendarPage = () => {
       {addAccount ? (
         <AddAccountWindow
           userInfo={userInfo}
+          firstTime={false}
           setUserInfo={setUserInfo}
           setAddAccount={setAddAccount}
           callGetUserInfo={callGetUserInfo}

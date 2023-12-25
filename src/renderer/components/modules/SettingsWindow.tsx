@@ -22,57 +22,12 @@ const updateSettings = async (req: { apiKey: string }): Promise<string> => {
   }
 };
 
-const getSettings = async (): Promise<{
-  settings: StringMap;
-  errMsg: string;
-}> => {
-  return window.electronAPI
-    .get_settings()
-    .then((resp) => {
-      console.log("settings: ", resp);
-      if ( 'errMsg' in resp ) {
-        return {
-          settings: {},
-          errMsg: resp.errMsg,
-        };
-      }
-      return {
-        settings: resp,
-        errMsg: "",
-      };
-    })
-    .catch((e) => {
-      console.log("fail to get settings:", e);
-      return {
-        settings: {},
-        errMsg: "fail to get settings",
-      };
-    });
-};
-
 const SettingsWindow = (props: {
   setOpenSettings: (b: boolean) => void;
   callGetUserEvents: () => void;
 }) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [openaiApiKey, setApiKey] = useState("");
-  const [isSetting, setIsSetting] = useState(false);
-  
-  useEffect(() => {
-  getSettings()
-    .then(({ settings, errMsg }) => {
-      console.log(settings);
-      setApiKey(settings.apiKey);
-    })
-    .catch((e) => {
-      console.log("fail to get settings:", e);
-    });
-  }, []);
-
-  const isEmptyApiKey = (apiKey: string): boolean => {
-    return apiKey === "" || apiKey === "null" || apiKey === "undefined";
-  };
 
   const handleSubmit = (event: any) => {
     setLoading(true);
@@ -138,121 +93,64 @@ const SettingsWindow = (props: {
             <Typography component="h1" variant="h5">
               Settings
             </Typography>
-            {isEmptyApiKey(openaiApiKey) || isSetting ? (
-              <Box
-                component="form"
-                onSubmit={handleSubmit}
-                // noValidate
-                sx={{ mt: 2, width: "80%" }}
-              >
-                {errorMsg === "" ? (
-                  <></>
-                ) : (
-                  <Alert
-                    severity="error"
-                    sx={{
-                      mb: 2,
-                    }}
-                  >
-                    {errorMsg}
-                  </Alert>
-                )}
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="apiKey"
-                  label="OpenAI API Key"
-                  name="apiKey"
-                  autoComplete="john@example.com"
-                  autoFocus
-                />
-
-                <Box
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              // noValidate
+              sx={{ mt: 2, width: "80%" }}
+            >
+              {errorMsg === "" ? (
+                <></>
+              ) : (
+                <Alert
+                  severity="error"
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    m: 1,
+                    mb: 2,
                   }}
                 >
-                  <LoadingButton
-                    type="submit"
-                    variant="contained"
-                    color="secondary"
-                    sx={{ m: 1 }}
-                    loading={loading}
-                  >
-                    Submit
-                  </LoadingButton>
-                  <Button
-                    variant="text"
-                    color="secondary"
-                    sx={{ m: 1 }}
-                    onClick={() => {
-                      if (isEmptyApiKey(openaiApiKey)) {
-                        props.setOpenSettings(false);
-                      }
-                      else {
-                        setIsSetting(false);
-                      }
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </Box>
-              </Box>
-            ) : (
-              // show openai api key
+                  {errorMsg}
+                </Alert>
+              )}
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="apiKey"
+                label="OpenAI API Key"
+                name="apiKey"
+                autoComplete="john@example.com"
+                autoFocus
+              />
+
               <Box
                 sx={{
                   display: "flex",
-                  flexDirection: "column",
                   alignItems: "center",
-                  width: "80%",
+                  justifyContent: "center",
+                  m: 1,
                 }}
               >
-                <Typography
-                  sx={{
-                    mt: 2,
-                    mb: 2,
-                    overflowWrap: "break-word",
+                <LoadingButton
+                  type="submit"
+                  variant="contained"
+                  color="secondary"
+                  sx={{ m: 1 }}
+                  loading={loading}
+                >
+                  Submit
+                </LoadingButton>
+                <Button
+                  variant="text"
+                  color="secondary"
+                  sx={{ m: 1 }}
+                  onClick={() => {
+                    props.setOpenSettings(false);
                   }}
                 >
-                  OpenAI API Key: <br />
-                  {openaiApiKey}
-                </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    m: 1,
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    sx={{ m: 1 }}
-                    onClick={() => {
-                      setIsSetting(true);
-                    }}
-                  >
-                    Change
-                  </Button>
-                  <Button
-                    variant="text"
-                    color="secondary"
-                    sx={{ m: 1 }}
-                    onClick={() => {
-                      props.setOpenSettings(false);
-                    }}
-                  >
-                    Quit
-                  </Button>
-                </Box>
+                  Cancel
+                </Button>
               </Box>
-            )}
+            </Box>
           </Box>
         </Container>
       </Box>
@@ -261,4 +159,4 @@ const SettingsWindow = (props: {
 };
 
 export default SettingsWindow;
-export { updateSettings , getSettings};
+export { updateSettings };

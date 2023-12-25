@@ -17,11 +17,11 @@ import {
 } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { updateSettings, getSettings } from "./SettingsWindow";
-
+import { updateSettings } from "./SettingsWindow";
 
 type AddAccountWindowProps = {
   userInfo: userInfoType | undefined;
+  firstTime: boolean;
   setUserInfo: (info: userInfoType) => void;
   setAddAccount: (status: boolean) => void;
   callGetUserInfo: () => void;
@@ -59,25 +59,6 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [openaiApiKey, setApiKey] = useState("");
-
-  useEffect(() => {
-    getSettings()
-    .then(({ settings, errMsg }) => {
-      setApiKey(settings.apiKey);
-      console.log(settings);
-    })
-    .catch((e) => {
-      console.log("fail to get settings:", e);
-    });
-  
-    console.log("OpenAI key: ", openaiApiKey);
-  }, []);
-
-  const isEmptyApiKey = (apiKey: string): boolean => {
-    return apiKey === "" || apiKey === "null" || apiKey === "undefined";
-  };
-  
   const requirePassword = (emailType: string): boolean => {
     let needPasswordEmails = ["IMAP", "POP3"];
     return needPasswordEmails.includes(emailType);
@@ -98,37 +79,34 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
     console.log(req);
 
     newEmailAccount(req)
-    .then((errMsg) => {
-      if (errMsg === "") {
-        props.callGetUserInfo();
-        props.setAddAccount(false);
-        if (isEmptyApiKey(openaiApiKey)) {
-          return updateSettings({ apiKey: req.openaiApiKey });
+      .then((errMsg) => {
+        if (errMsg === "") {
+          props.callGetUserInfo();
+          props.setAddAccount(false);
+          if (props.firstTime) {
+            return updateSettings({ apiKey: req.openaiApiKey });
+          }
+          return ""; // no need to update settings
+        } else {
+          console.log("Error when adding mailbox:", errMsg);
+          setErrorMsg(errMsg);
+          throw errMsg;
         }
-        return ""; // no need to update settings
-      } else {
-        console.log("Error when adding mailbox:", errMsg);
-        setErrorMsg(errMsg);
-        // Return a rejected promise to skip the next .then() block
-        return Promise.reject(errMsg);
-      }
-    })
-    .then((errMsg) => {
-      // This block will only execute if newEmailAccount is successful
-      setLoading(false);
+      })
+      .then((errMsg) => {
+        // This block will only execute if newEmailAccount is successful
+        setLoading(false);
 
-      if (errMsg === "") {
-        // Both updateSettings and newEmailAccount were successful
-        return;
-      } else {
-        console.log("Error when updating settings:", errMsg);
-        setErrorMsg(errMsg);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  }
+        if (errMsg !== "") {
+          console.log("Error when updating settings:", errMsg);
+          setErrorMsg(errMsg);
+        }
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log(err);
+      });
+  };
 
   return (
     <Box
@@ -138,7 +116,9 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: "primary.main",
+        backgroundColor: props.firstTime
+          ? "primary.main"
+          : "rgba(0, 0, 0, 0.5)",
         zIndex: 1,
       }}
     >
@@ -256,7 +236,7 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
               ) : (
                 <></>
               )}
-              {isEmptyApiKey(openaiApiKey) ? (
+              {props.firstTime ? (
                 <TextField
                   margin="normal"
                   required
