@@ -81,8 +81,6 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
     newEmailAccount(req)
       .then((errMsg) => {
         if (errMsg === "") {
-          props.callGetUserInfo();
-          props.setAddAccount(false);
           if (props.firstTime) {
             return updateSettings({ apiKey: req.openaiApiKey });
           }
@@ -100,7 +98,10 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
         if (errMsg !== "") {
           console.log("Error when updating settings:", errMsg);
           setErrorMsg(errMsg);
+          return;
         }
+        props.callGetUserInfo();
+        props.setAddAccount(false);
       })
       .catch((err) => {
         setLoading(false);

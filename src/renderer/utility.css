@@ -178,11 +178,10 @@ form {
   font-size: var(--s);
 }
 
-
-.fc-daygrid-day-events {
+/* .fc-daygrid-day-events {
   height: 10vh;
   overflow: scroll;
-}
+} */
 
 ::-webkit-scrollbar {
   display: none;

@@ -71,6 +71,22 @@ const CalendarPage = () => {
       });
   }, [toGetUserInfo]);
 
+  if (userInfo === undefined) {
+    return (
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "primary.main",
+          zIndex: 1,
+        }}
+      ></Box>
+    );
+  }
+
   if (isNoAccount(userInfo)) {
     return (
       <AddAccountWindow
