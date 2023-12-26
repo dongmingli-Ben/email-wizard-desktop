@@ -267,18 +267,18 @@ const HeaderToolBar = ({
   const updateTitle = () => {
     let date = new Date(calendarRef.current.getApi().getDate());
     const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
       "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
     setTitle(`${monthNames[date.getMonth()]} ${date.getFullYear()}`);
   };
@@ -357,7 +357,7 @@ const Calendar = (props: calendarProps) => {
   const prepareEventsForCalendar = (rawEvents: { [key: string]: string }[]) => {
     let events: { [key: string]: any }[] = [];
     for (const e of rawEvents) {
-      if ("end_time" in e && e.end_time != "unspecified") {
+      if ("end_time" in e && e.end_time !== "unspecified") {
         let startTime = "start_time" in e ? e.start_time : e.end_time;
         events = [
           ...events,
@@ -451,6 +451,7 @@ const Calendar = (props: calendarProps) => {
         headerToolbar={false}
         eventBackgroundColor="white"
         eventContent={(arg) => <CustomEvent event={arg.event} />}
+        height={"100%"}
       />
     </Box>
   );

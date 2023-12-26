@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { parseEmail } from "./main";
+import { parseEmail } from "../main";
 
 const PATH = "configs/test_email.json";
 

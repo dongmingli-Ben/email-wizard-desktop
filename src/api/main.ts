@@ -170,3 +170,17 @@ export async function handleUpdateSettings(req: StringMap): Promise<string> {
     return e.message;
   }
 }
+
+export async function handleGetSettings(): Promise<StringMap | StringKeyMap> {
+  try {
+    let result = query(["*"], {}, "settings");
+    let settings: StringMap = {};
+    for (let row of result) {
+      settings[row.key] = row.value;
+    }
+    return settings;
+  } catch (e) {
+    console.log(e);
+    return { errMsg: e.message };
+  }
+}

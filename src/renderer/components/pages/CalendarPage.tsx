@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import Feed from "../modules/Feed";
 import SideBar, { userInfoType } from "../modules/SideBar";
 import AddAccountWindow from "../modules/AddAccountWindow";
-import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
 import DeleteAccountConfirmWindow from "../modules/DeleteAccountWindow";
 import UpdateAccountWindow from "../modules/UpdateAccountWindow";
 import SettingsWindow from "../modules/SettingsWindow";
+import { getUserInfoAPI } from "../modules/SideBar";
 
 /**
  * Define the "CalendarPage" component as a function.
@@ -42,6 +42,62 @@ const CalendarPage = () => {
     setErrorMailboxes(mailboxes);
   };
 
+  // output type of userInfo
+  // judge whether userInfo is undefined
+  const isNoAccount = (userInfo: userInfoType | undefined): boolean => {
+    if (userInfo === undefined) {
+      console.log("userInfo is undefined");
+      return true;
+    }
+    if (userInfo.useraccounts.length === 0) {
+      console.log("userInfo.useraccounts is empty");
+      console.log(userInfo);
+      return true;
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    getUserInfoAPI()
+      .then(({ userAccounts, errMsg }) => {
+        console.log(userAccounts);
+        setUserInfo({
+          useraccounts: userAccounts,
+        });
+      })
+      .catch((e) => {
+        console.log("fail to fetch user profile:", e);
+      });
+  }, [toGetUserInfo]);
+
+  if (userInfo === undefined) {
+    return (
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "primary.main",
+          zIndex: 1,
+        }}
+      ></Box>
+    );
+  }
+
+  if (isNoAccount(userInfo)) {
+    return (
+      <AddAccountWindow
+        userInfo={userInfo}
+        firstTime={true}
+        setUserInfo={setUserInfo}
+        setAddAccount={setAddAccount}
+        callGetUserInfo={callGetUserInfo}
+      />
+    );
+  }
+
   return (
     // <> is like a <div>, but won't show
     // up in the DOM tree
@@ -66,12 +122,10 @@ const CalendarPage = () => {
       >
         <SideBar
           userInfo={userInfo}
-          setUserInfo={setUserInfo}
           setAddAccount={setAddAccount}
           setDeleteAccount={setDeleteAccount}
           setUpdateAccount={setUpdateAccount}
           setOpenSettings={setOpenSettings}
-          toGetUserInfo={toGetUserInfo}
           errorMailboxes={errorMailboxes}
           setAppErrMsg={setAppErrMsg}
         />
@@ -86,6 +140,7 @@ const CalendarPage = () => {
       {addAccount ? (
         <AddAccountWindow
           userInfo={userInfo}
+          firstTime={false}
           setUserInfo={setUserInfo}
           setAddAccount={setAddAccount}
           callGetUserInfo={callGetUserInfo}

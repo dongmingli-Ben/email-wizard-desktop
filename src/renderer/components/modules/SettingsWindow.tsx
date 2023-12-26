@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   Avatar,
@@ -159,3 +159,4 @@ const SettingsWindow = (props: {
 };
 
 export default SettingsWindow;
+export { updateSettings };

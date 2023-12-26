@@ -33,6 +33,7 @@ export interface IElectronAPI {
   ) => Promise<VerifyResposne>;
   browser_open: (url: string) => Promise<void>;
   update_settings: (req: StringMap) => Promise<string>;
+  get_settings: () => Promise<StringMap | StringKeyMap>;
 }
 
 declare global {
