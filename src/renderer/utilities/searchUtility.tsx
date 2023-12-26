@@ -5,7 +5,7 @@ class LocalSearchStore {
 
   setDocs(events: { [key: string]: string }[]) {
     this.index = new Fuse(events, {
-      keys: ["summary"],
+      keys: ["extendedProps.event.summary"],
       includeScore: true,
     });
   }
