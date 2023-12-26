@@ -33,7 +33,7 @@ export interface IElectronAPI {
   ) => Promise<VerifyResposne>;
   browser_open: (url: string) => Promise<void>;
   update_settings: (req: StringMap) => Promise<string>;
-  get_settings: () => Promise<StringMap | StringKeyMap>;
+  get_settings: () => Promise<StringKeyMap>;
 }
 
 declare global {
@@ -50,5 +50,16 @@ declare global {
   type UpdateEventsResponse = {
     retrievalErrorMsg: string;
     parseErrorMsg: string;
+  };
+
+  // backend types
+  type MailboxInfo = {
+    address: string;
+    protocol: string;
+    credentials: StringMap;
+  };
+  type EmailInfo = {
+    emailId: string;
+    timestamp: Date;
   };
 }
