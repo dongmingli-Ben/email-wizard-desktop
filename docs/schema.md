@@ -58,6 +58,10 @@ When the `last_email_info` field is not supplied in the time adding a new mailbo
 | email ID (PK)          | string                   | not null    |
 | email address (PK, FK) | string                   | not null    |
 | event IDs              | array of int (JSON text) | -           |
+| parsed                 | integer of boolean       | not null    |
+| email content          | JSON text                | -           |
+
+`email_content` is the JSON string of what returned by the email parsing module.
 
 ## Events
 
