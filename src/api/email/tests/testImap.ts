@@ -1,6 +1,7 @@
 import * as fs from "fs";
-import { retrieveEmailIMAP } from "../imap";
+import { countNewMailSinceTimeIMAP, retrieveEmailIMAP } from "../imap";
 import { retrieveEmails } from "../main";
+import { shiftTimeBySeconds } from "../utils";
 
 const PATH = "configs/test_imap.json";
 
@@ -20,4 +21,16 @@ export async function testIMAP() {
   }
 }
 
-testIMAP();
+async function testIMAPCountTime() {
+  const token = fs.readFileSync(PATH);
+  const item = JSON.parse(token.toString());
+  const n = await countNewMailSinceTimeIMAP(
+    item.username,
+    item.credentials,
+    shiftTimeBySeconds(new Date(), 60)
+  );
+  console.log(n);
+}
+
+// testIMAP();
+testIMAPCountTime();

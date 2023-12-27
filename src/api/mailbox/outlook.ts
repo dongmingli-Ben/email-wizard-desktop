@@ -2,6 +2,7 @@ import { PublicClientApplication } from "@azure/msal-node";
 import express from "express";
 import { shell } from "electron";
 import { updateValue } from "../data/utils";
+import path from "path";
 
 const PORT = 30009;
 
@@ -49,7 +50,7 @@ async function authorize(address: string): Promise<StringMap> {
       redirectUri,
       loginHint: address,
     };
-    res.send("You can close this window now.");
+    res.sendFile(path.join(process.cwd(), "src/api/mailbox/success.html"));
     server.close();
 
     pca.acquireTokenByCode(tokenRequest).then((response) => {

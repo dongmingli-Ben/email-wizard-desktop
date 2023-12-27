@@ -5,14 +5,14 @@ import { retrieveEmails } from "./email/main";
 import { parseEmail } from "./parse/main";
 import {
   getApiKey,
+  getSettings,
   refreshCredentialsIfExpire,
   revokeMailboxCredentials,
 } from "./utils";
+import { getNMailsByPolicy } from "./policy";
 
 type StringMap = { [key: string]: string };
 type StringKeyMap = { [key: string]: any };
-
-const N_MAILS = 25;
 
 export async function handleGetEvents(): Promise<StringMap[] | StringKeyMap> {
   try {
@@ -31,25 +31,40 @@ export async function handleGetEvents(): Promise<StringMap[] | StringKeyMap> {
 export async function handleUpdateEvents(
   address: string,
   kwargs: StringMap = {}
-): Promise<string> {
-  let errMsg = "";
+): Promise<StringMap> {
+  let emails: [string, StringKeyMap][] = [];
   try {
     await refreshCredentialsIfExpire(address);
     let mailbox = await getMailboxInfoFromDB(address);
-    console.log("retrieving emails for address: " + address);
-    let emails = await retrieveEmails(
+    let policy = JSON.parse(getSettings(["emailReadPolicy"]).emailReadPolicy);
+    let nMails = await getNMailsByPolicy(policy, mailbox);
+    console.log(`retrieving ${nMails} emails for address: ` + address);
+    emails = await retrieveEmails(
       mailbox.address,
       mailbox.protocol,
       mailbox.credentials,
-      N_MAILS
+      nMails
     );
     console.log(`retrieved ${emails.length} emails for address: ` + address);
+  } catch (e) {
+    console.log("error in retrieving emails for address: " + address);
+    console.log(e);
+    return {
+      retrievalErrorMsg: e.message,
+      parseErrorMsg: "",
+    };
+  }
+  try {
+    let lastEmailInfo: EmailInfo = null;
     await Promise.all(
       emails.map(async ([id, email]) => {
         let result = query(["*"], { email_id: id }, "emails");
         if (result.length > 0) {
           return;
         }
+        console.log(`parsing email: ${id}, address: ${address}`);
+        let events = await parseEmail(email, await getApiKey(), 5, kwargs);
+        console.log(`storing ${events.length} events for email: ${id}`);
         addRow(
           {
             email_id: id,
@@ -58,19 +73,39 @@ export async function handleUpdateEvents(
           },
           "emails"
         );
-        console.log(`parsing email: ${id}, address: ${address}`);
-        let events = await parseEmail(email, await getApiKey(), 5, kwargs);
-        console.log(`storing ${events.length} events for email: ${id}`);
         await addEventsInDB(events, id, address);
+        if (
+          lastEmailInfo === null ||
+          lastEmailInfo.timestamp < new Date(email.date)
+        ) {
+          lastEmailInfo = {
+            emailId: id,
+            timestamp: new Date(email.date),
+          };
+        }
       })
     );
+    console.log("handleUpdateEvents", lastEmailInfo);
+    if (lastEmailInfo !== null) {
+      updateValue(
+        "last_email_info",
+        JSON.stringify(lastEmailInfo),
+        { address: address },
+        "mailboxes"
+      );
+    }
   } catch (e) {
-    console.log("error in handleUpdateEvents for address: " + address);
+    console.log("error in parsing for address: " + address);
     console.log(e);
-    errMsg = e.message;
+    return {
+      retrievalErrorMsg: "",
+      parseErrorMsg: e.message,
+    };
   }
-  console.log(address, errMsg);
-  return errMsg;
+  return {
+    retrievalErrorMsg: "",
+    parseErrorMsg: "",
+  };
 }
 
 export async function handleGetMailboxes(): Promise<
@@ -84,6 +119,7 @@ export async function handleGetMailboxes(): Promise<
         username: row.address,
         protocol: row.protocol,
         credentials: JSON.parse(row.credentials),
+        lastEmailInfo: JSON.parse(row.last_email_info),
       });
     }
     return mailboxes;
@@ -144,3 +180,34 @@ export async function handleUpdateMailbox(
 export function handleOpenURLInBrowser(url: string): void {
   shell.openExternal(url);
 }
+
+export async function handleUpdateSettings(req: StringMap): Promise<string> {
+  try {
+    for (let key in req) {
+      updateValue("value", req[key], { key: key }, "settings");
+    }
+    return "";
+  } catch (e) {
+    console.log(e);
+    return e.message;
+  }
+}
+
+export async function handleGetSettings(): Promise<StringKeyMap> {
+  try {
+    let result = getSettings();
+    let settings = {
+      ...result,
+      emailReadPolicy: JSON.parse(result.emailReadPolicy),
+    };
+    return settings;
+  } catch (e) {
+    console.log(e);
+    return { errMsg: e.message };
+  }
+}
+
+type EmailInfo = {
+  emailId: string;
+  timestamp: Date;
+};

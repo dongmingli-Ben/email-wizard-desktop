@@ -7,6 +7,8 @@ import {
   handleRemoveMailbox,
   handleUpdateEvents,
   handleUpdateMailbox,
+  handleUpdateSettings,
+  handleGetSettings,
 } from "./api/main";
 import { initDatabase } from "./api/data/init";
 import { handleVerifyGmail } from "./api/mailbox/gmail";
@@ -28,6 +30,8 @@ const createWindow = (): void => {
   const mainWindow = new BrowserWindow({
     height: 600,
     width: 800,
+    minWidth: 600,
+    minHeight: 500,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
@@ -75,6 +79,10 @@ app.on("ready", () => {
   ipcMain.handle("browser:open", (event, ...args) => {
     return handleOpenURLInBrowser(args[0]);
   });
+  ipcMain.handle("settings:put", (event, ...args) => {
+    return handleUpdateSettings(args[0]);
+  });
+  ipcMain.handle("settings:get", handleGetSettings);
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
