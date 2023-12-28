@@ -13,6 +13,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     extraResource: ["./configs/google.json"],
+    icon: "./images/app-icon",
   },
   rebuildConfig: {},
   makers: [
