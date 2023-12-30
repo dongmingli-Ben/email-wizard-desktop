@@ -8,6 +8,7 @@ import {
   getSettings,
   refreshCredentialsIfExpire,
   revokeMailboxCredentials,
+  tryParseErrorEmails,
 } from "./utils";
 import { getNMailsByPolicy } from "./policy";
 
@@ -33,6 +34,13 @@ export async function handleUpdateEvents(
   kwargs: StringMap = {}
 ): Promise<StringMap> {
   let emails: [string, StringKeyMap][] = [];
+  let parseErrorMsg = await tryParseErrorEmails(address);
+  if (parseErrorMsg !== "") {
+    return {
+      retrievalErrorMsg: "",
+      parseErrorMsg: parseErrorMsg,
+    };
+  }
   try {
     await refreshCredentialsIfExpire(address);
     let mailbox = await getMailboxInfoFromDB(address);
@@ -62,18 +70,45 @@ export async function handleUpdateEvents(
         if (result.length > 0) {
           return;
         }
-        console.log(`parsing email: ${id}, address: ${address}`);
-        let events = await parseEmail(email, await getApiKey(), 5, kwargs);
-        console.log(`storing ${events.length} events for email: ${id}`);
-        addRow(
-          {
-            email_id: id,
-            email_address: address,
-            event_ids: [],
-          },
-          "emails"
-        );
-        await addEventsInDB(events, id, address);
+        try {
+          console.log(`parsing email: ${id}, address: ${address}`);
+          let events = await parseEmail(email, await getApiKey(), 5, kwargs);
+          console.log(`storing ${events.length} events for email: ${id}`);
+          // assuming adding email will not fail
+          addRow(
+            {
+              email_id: id,
+              email_address: address,
+              event_ids: [],
+              parsed: 1,
+            },
+            "emails"
+          );
+          await addEventsInDB(events, id, address);
+        } catch (e) {
+          console.log("error in parsing email: " + id);
+          console.log(e);
+          parseErrorMsg = e.message;
+          // try to add the email as a email with error
+          // the try catch is necessary because the email might be added
+          // in another call of handleUpdateEvents
+          try {
+            addRow(
+              {
+                email_id: id,
+                email_address: address,
+                event_ids: [],
+                parsed: 0,
+                email_content: JSON.stringify(email),
+              },
+              "emails"
+            );
+          } catch (e) {
+            console.log("error in adding email with error: " + id);
+            console.log(e);
+            console.log("skipping email: " + id);
+          }
+        }
         if (
           lastEmailInfo === null ||
           lastEmailInfo.timestamp < new Date(email.date)
@@ -104,7 +139,7 @@ export async function handleUpdateEvents(
   }
   return {
     retrievalErrorMsg: "",
-    parseErrorMsg: "",
+    parseErrorMsg: parseErrorMsg,
   };
 }
 

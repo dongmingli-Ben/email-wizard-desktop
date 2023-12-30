@@ -60,6 +60,8 @@ export function initDatabase(redo: boolean = false): void {
       email_id TEXT NOT NULL,
       email_address TEXT NOT NULL,
       event_ids TEXT NOT NULL,
+      parsed INTEGER NOT NULL,
+      email_content TEXT,
       PRIMARY KEY (email_id, email_address),
       FOREIGN KEY (email_address) REFERENCES mailboxes(address)
     )
