@@ -12,7 +12,7 @@ import { rendererConfig } from "./webpack.renderer.config";
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    extraResource: ["./configs/google.json"],
+    extraResource: ["./configs/google.json", "src/api/mailbox/success.html"],
     icon: "./images/app-icon",
   },
   rebuildConfig: {},

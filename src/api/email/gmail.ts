@@ -9,8 +9,8 @@ type StringMap = { [key: string]: string };
 async function getCredentials(): Promise<any> {
   // Load client secrets from a file
   try {
-    // const content = fs.readFileSync("./configs/google.json");  // in dev settings
-    const content = fs.readFileSync(process.resourcesPath + "/google.json"); // in dev settings
+    // const content = fs.readFileSync("./configs/google.json"); // in dev settings
+    const content = fs.readFileSync(process.resourcesPath + "/google.json"); // in release settings
     return JSON.parse(content.toString());
   } catch (err) {
     console.error("Error loading client secret file:", err);
@@ -30,8 +30,9 @@ function getRawTexts(payload: gmail_v1.Schema$MessagePart): string[] {
   let mime = payload.mimeType;
   let contents: string[] = [];
   if (
-    payload.parts !== undefined && (mime.startsWith("multipart") ||
-    (payload.body.size == 0 && payload.parts.length > 0))
+    payload.parts !== undefined &&
+    (mime.startsWith("multipart") ||
+      (payload.body.size == 0 && payload.parts.length > 0))
   ) {
     for (const part of payload.parts) {
       let childrens = getRawTexts(part);

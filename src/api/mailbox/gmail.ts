@@ -26,8 +26,8 @@ async function authorize(address: string): Promise<Credentials> {
 async function getCredentials(): Promise<any> {
   // Load client secrets from a file
   try {
-    // const content = fs.readFileSync("./configs/google.json");  // in dev settings
-    const content = fs.readFileSync(process.resourcesPath + "/google.json"); // in dev settings
+    // const content = fs.readFileSync("./configs/google.json"); // in dev settings
+    const content = fs.readFileSync(process.resourcesPath + "/google.json"); // in release settings
     return JSON.parse(content.toString());
   } catch (err) {
     console.error("Error loading client secret file:", err);
@@ -61,7 +61,8 @@ async function getNewToken(
     const code = req.query.code as string;
     tokens = (await oAuth2Client.getToken(code)).tokens;
     oAuth2Client.setCredentials(tokens);
-    res.sendFile(path.join(process.cwd(), "src/api/mailbox/success.html"));
+    // res.sendFile(path.join(process.cwd(), "src/api/mailbox/success.html"));
+    res.sendFile(path.join(process.resourcesPath, "success.html"));
 
     // Close the server after handling the callback
     server.close();

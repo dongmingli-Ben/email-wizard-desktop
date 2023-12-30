@@ -50,7 +50,8 @@ async function authorize(address: string): Promise<StringMap> {
       redirectUri,
       loginHint: address,
     };
-    res.sendFile(path.join(process.cwd(), "src/api/mailbox/success.html"));
+    // res.sendFile(path.join(process.cwd(), "src/api/mailbox/success.html"));
+    res.sendFile(path.join(process.resourcesPath, "success.html"));
     server.close();
 
     pca.acquireTokenByCode(tokenRequest).then((response) => {
