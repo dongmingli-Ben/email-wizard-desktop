@@ -35,13 +35,20 @@ const createWindow = (): void => {
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
+    autoHideMenuBar: true,
+    show: false,
   });
+  mainWindow.maximize();
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.show();
+  });
 };
 
 // This method will be called when Electron has finished
