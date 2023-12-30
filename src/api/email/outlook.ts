@@ -1,4 +1,5 @@
 import axios from "axios";
+import { shiftTimeBySeconds } from "./utils";
 
 type StringKeyMap = { [key: string]: any };
 type StringMap = { [key: string]: string };
@@ -43,3 +44,48 @@ export async function retrieveEmailOutlook(
   });
   return await Promise.all(emailPromises);
 }
+
+export async function countNewMailSinceMailOutlook(
+  address: string,
+  credentials: StringMap,
+  mail: EmailInfo
+): Promise<number> {
+  return countNewMailSinceTimeOutlook(
+    address,
+    credentials,
+    // shift to add redundancy
+    shiftTimeBySeconds(mail.timestamp, 60)
+  );
+}
+
+export async function countNewMailSinceTimeOutlook(
+  address: string,
+  credentials: StringMap,
+  ts: Date
+): Promise<number> {
+  const accessToken = credentials["access_token"];
+  const response = await axios
+    .get(graphAPIUrl, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      params: {
+        $filter: `receivedDateTime ge ${ts.toISOString()}`,
+        $orderby: "receivedDateTime desc",
+      },
+    })
+    .catch((err) => {
+      console.log(
+        "fail to fetch emails from outlook, error:",
+        err.response.data.error
+      ); // todo: test this
+      throw err;
+    });
+  return response.data.value.length;
+}
+
+type EmailInfo = {
+  emailId: string;
+  timestamp: Date;
+};

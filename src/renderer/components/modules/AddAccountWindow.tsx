@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { userInfoType } from "./SideBar";
 import { verifyEmailAccount } from "../../utilities/verifyEmail";
 import {
@@ -17,9 +17,11 @@ import {
 } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import LoadingButton from "@mui/lab/LoadingButton";
+import { updateSettings } from "./SettingsWindow";
 
 type AddAccountWindowProps = {
   userInfo: userInfoType | undefined;
+  firstTime: boolean;
   setUserInfo: (info: userInfoType) => void;
   setAddAccount: (status: boolean) => void;
   callGetUserInfo: () => void;
@@ -72,20 +74,37 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
       password: data.get("password") as string,
       imapServer: data.get("server") as string,
       pop3Server: data.get("server") as string,
+      openaiApiKey: data.get("openaiApiKey") as string,
     };
     console.log(req);
+
     newEmailAccount(req)
       .then((errMsg) => {
-        setLoading(false);
         if (errMsg === "") {
-          props.callGetUserInfo();
-          props.setAddAccount(false);
+          if (props.firstTime) {
+            return updateSettings({ apiKey: req.openaiApiKey });
+          }
+          return ""; // no need to update settings
         } else {
-          console.log("error when adding mailbox:", errMsg);
+          console.log("Error when adding mailbox:", errMsg);
           setErrorMsg(errMsg);
+          throw errMsg;
         }
       })
+      .then((errMsg) => {
+        // This block will only execute if newEmailAccount is successful
+        setLoading(false);
+
+        if (errMsg !== "") {
+          console.log("Error when updating settings:", errMsg);
+          setErrorMsg(errMsg);
+          return;
+        }
+        props.callGetUserInfo();
+        props.setAddAccount(false);
+      })
       .catch((err) => {
+        setLoading(false);
         console.log(err);
       });
   };
@@ -98,7 +117,9 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        backgroundColor: props.firstTime
+          ? "primary.main"
+          : "rgba(0, 0, 0, 0.5)",
         zIndex: 1,
       }}
     >
@@ -212,6 +233,20 @@ const AddAccountWindow = (props: AddAccountWindowProps) => {
                   type="text"
                   id="server"
                   autoComplete="xxx.pop3.com"
+                />
+              ) : (
+                <></>
+              )}
+              {props.firstTime ? (
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="openaiApiKey"
+                  label="OpenAI API Key"
+                  type="text"
+                  id="openaiApiKey"
+                  autoComplete="xxx-xxx-xxx"
                 />
               ) : (
                 <></>

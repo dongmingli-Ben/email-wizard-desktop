@@ -119,6 +119,7 @@ const UserAccountInfo = (props: UserAccountInfoProps) => {
         color: "common.white",
         mt: 3,
         width: "100%",
+        flex: 1,
       }}
     >
       <Grid

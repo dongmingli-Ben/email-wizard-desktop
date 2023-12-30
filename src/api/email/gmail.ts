@@ -1,6 +1,7 @@
 import { gmail_v1, google } from "googleapis";
 import { OAuth2Client, Credentials } from "google-auth-library";
 import * as fs from "fs";
+import { shiftTimeBySeconds } from "./utils";
 
 type StringKeyMap = { [key: string]: any };
 type StringMap = { [key: string]: string };
@@ -29,8 +30,8 @@ function getRawTexts(payload: gmail_v1.Schema$MessagePart): string[] {
   let mime = payload.mimeType;
   let contents: string[] = [];
   if (
-    mime.startsWith("multipart") ||
-    (payload.body.size == 0 && payload.parts.length > 0)
+    payload.parts !== undefined && (mime.startsWith("multipart") ||
+    (payload.body.size == 0 && payload.parts.length > 0))
   ) {
     for (const part of payload.parts) {
       let childrens = getRawTexts(part);
@@ -99,3 +100,52 @@ export async function retrieveEmailGmail(
   );
   return await Promise.all(emailPromises);
 }
+
+export async function countNewMailSinceMailGmail(
+  address: string,
+  credentials: StringMap,
+  mail: EmailInfo
+): Promise<number> {
+  return countNewMailSinceTimeGmail(
+    address,
+    credentials,
+    // no need to shift for redundancy. gmail api already has some redundancy
+    mail.timestamp
+  );
+}
+
+/* Note: it appears that the `q` options in gmail api only accept dates and search
+  emails in terms of UTC.
+   Also, gmail api can only return maximum 500 emails in one call. TODO: fix this */
+export async function countNewMailSinceTimeGmail(
+  address: string,
+  credentials: StringMap,
+  ts: Date
+): Promise<number> {
+  const appCreds = await getCredentials();
+  const { client_secret, client_id, redirect_uris } = appCreds.web;
+  const oAuth2Client = new google.auth.OAuth2(
+    client_id,
+    client_secret,
+    redirect_uris[0]
+  );
+
+  oAuth2Client.setCredentials(credentials as Credentials);
+
+  const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
+
+  const response = await gmail.users.messages.list({
+    userId: "me",
+    q: `after:${ts.getUTCFullYear()}/${
+      ts.getUTCMonth() + 1
+    }/${ts.getUTCDate()}`,
+    maxResults: 500,
+  });
+  // console.log(response);
+  return response.data.messages.length;
+}
+
+type EmailInfo = {
+  emailId: string;
+  timestamp: Date;
+};

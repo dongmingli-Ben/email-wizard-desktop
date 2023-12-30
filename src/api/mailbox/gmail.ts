@@ -4,6 +4,7 @@ import * as fs from "fs";
 import express from "express";
 import { shell } from "electron";
 import { updateValue } from "../data/utils";
+import path from "path";
 
 const PORT = 30009;
 
@@ -60,7 +61,7 @@ async function getNewToken(
     const code = req.query.code as string;
     tokens = (await oAuth2Client.getToken(code)).tokens;
     oAuth2Client.setCredentials(tokens);
-    res.send("Authentication successful! You can close this window now.");
+    res.sendFile(path.join(process.cwd(), "src/api/mailbox/success.html"));
 
     // Close the server after handling the callback
     server.close();

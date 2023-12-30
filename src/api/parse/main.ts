@@ -11,6 +11,7 @@ export async function parseEmail(
   kwargs: StringMap
 ): Promise<StringMap[]> {
   let prompt = getPrompt(email, kwargs);
+  let error = null;
   for (let i = 0; i < maxPatience; i++) {
     try {
       let rawResult = await getLLMResponse(prompt, apiKey);
@@ -19,8 +20,8 @@ export async function parseEmail(
     } catch (err) {
       console.log("Error when parsing email: " + err.toString());
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      error = err;
     }
   }
-
-  return [];
+  throw error;
 }
